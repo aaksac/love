@@ -1,0 +1,15 @@
+{
+  "events": [
+    {
+      "id": "tanisma",
+      "title": "Tanışma",
+      "date": "2021-09-13T01:18:22",
+      "message": "Sana hala ilk günkü gibi aşığım bitanem benim. ❤️"
+    },
+    { "id": "evlilik_teklifi", "title": "Evlilik Teklifi", "date": "2022-01-01T00:00:00" },
+    { "id": "nisan",           "title": "Nişan",           "date": "2022-05-04T00:00:00" },
+    { "id": "nikah",           "title": "Nikâh",           "date": "2022-08-10T00:00:00" },
+    { "id": "dugun",           "title": "Düğün",           "date": "2022-08-21T00:00:00" },
+    { "id": "akif_dogum",      "title": "Akif’in Doğumu",  "date": "2023-10-10T00:00:00", "isBirthday": true }
+  ]
+}
