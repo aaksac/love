@@ -13,6 +13,7 @@
 
     { "id": "akif_dogum", "title": "Akif’in Doğumu", "date": "2023-10-10T00:00:00" },
     { "id": "baba_dogum", "title": "Baba Doğum Günü", "date": "1994-10-27T00:00:00" },
-    { "id": "anne_dogum", "title": "Anne Doğum Günü", "date": "1996-08-28T00:00:00" }
+    { "id": "anne_dogum", "title": "Anne Doğum Günü", "date": "1996-08-27T00:00:00" }
   ]
+
 }
