@@ -688,6 +688,249 @@
       50%{ background-position:100% 50%; transform:translateY(-1px); }
     }
 
+
+    /* BAŞ DÖNDÜRÜCÜ 1 DAKİKALIK KUTLAMA SAHNESİ */
+    .celebrationOverlay.celebrationDizzyShow{
+      background:
+        radial-gradient(720px 520px at 50% 8%, rgba(255,45,85,.70), transparent 64%),
+        radial-gradient(560px 440px at 16% 62%, rgba(255,184,77,.46), transparent 72%),
+        radial-gradient(620px 500px at 86% 68%, rgba(181,23,255,.38), transparent 72%),
+        radial-gradient(900px 760px at 50% 112%, rgba(255,45,85,.34), transparent 70%),
+        linear-gradient(180deg, rgba(18,3,28,.92), rgba(5,6,10,.86));
+      animation:celebrationDizzyScene 1.6s ease-in-out infinite;
+    }
+
+    .celebrationOverlay.celebrationDizzyShow::before,
+    .celebrationOverlay.celebrationDizzyShow::after{
+      content:"";
+      position:absolute;
+      inset:-18%;
+      z-index:0;
+      pointer-events:none;
+      border-radius:50%;
+      background:
+        conic-gradient(from 0deg,
+          transparent 0deg,
+          rgba(255,45,85,.18) 42deg,
+          transparent 76deg,
+          rgba(255,211,102,.18) 138deg,
+          transparent 176deg,
+          rgba(181,23,255,.14) 232deg,
+          transparent 300deg,
+          rgba(255,255,255,.12) 340deg,
+          transparent 360deg);
+      filter:blur(10px) saturate(1.25);
+      mix-blend-mode:screen;
+      animation:celebrationVortexBg 9s linear infinite;
+      opacity:.86;
+    }
+
+    .celebrationOverlay.celebrationDizzyShow::after{
+      inset:-30%;
+      animation-duration:13s;
+      animation-direction:reverse;
+      opacity:.54;
+      filter:blur(18px) saturate(1.5);
+    }
+
+    .celebrationOverlay.celebrationDizzyShow .celebrationCard{
+      animation:celebrationDizzyCard 4.8s ease-in-out infinite;
+      background:
+        radial-gradient(260px 180px at 50% 10%, rgba(255,255,255,.20), transparent 72%),
+        linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08)),
+        rgba(16,10,28,.70);
+      box-shadow:
+        0 38px 120px rgba(0,0,0,.70),
+        0 0 62px rgba(255,45,85,.34),
+        0 0 94px rgba(255,204,102,.22),
+        0 0 120px rgba(181,23,255,.14),
+        inset 0 1px 0 rgba(255,255,255,.28);
+    }
+
+    .celebrationOverlay.celebrationDizzyShow .celebrationHalo{
+      width:250px;
+      height:250px;
+      background:radial-gradient(circle, rgba(255,255,255,.34), rgba(255,45,85,.38) 38%, rgba(255,205,96,.12) 62%, transparent 74%);
+      animation:celebrationHaloExplode 1.05s ease-in-out infinite;
+    }
+
+    .celebrationFlash{
+      animation:celebrationFlashPulse .22s ease-out 1, celebrationDizzyScene 1.6s ease-in-out infinite;
+    }
+
+    .heartFireworkMega .heartFireworkCore{
+      width:32px;
+      height:32px;
+      background:radial-gradient(circle, #fff 0 16%, #FFF1A8 24%, #FF2D55 54%, rgba(181,23,255,.34) 72%, transparent 78%);
+      box-shadow:
+        0 0 26px rgba(255,255,255,1),
+        0 0 68px rgba(255,45,85,.96),
+        0 0 112px rgba(255,195,84,.82),
+        0 0 148px rgba(181,23,255,.40);
+      animation:heartFireworkCore 1.75s ease-out forwards;
+    }
+
+    .heartFireworkMega .heartSpark{
+      animation-duration:2.8s;
+      box-shadow:
+        0 0 12px rgba(255,255,255,.95),
+        0 0 24px var(--spark),
+        0 0 44px rgba(255,45,85,.58),
+        0 0 72px rgba(255,201,91,.30);
+    }
+
+    .celebrationRingSparkBig{
+      filter:blur(.05px) saturate(1.35);
+      box-shadow:
+        0 0 18px rgba(255,255,255,1),
+        0 0 38px var(--spark),
+        0 0 76px rgba(255,45,85,.62);
+    }
+
+    .celebrationShockwave{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      border:2px solid rgba(255,232,166,.95);
+      box-shadow:
+        0 0 18px rgba(255,255,255,.92),
+        0 0 48px rgba(255,45,85,.74),
+        inset 0 0 18px rgba(255,255,255,.42);
+      opacity:0;
+      transform:translate(-50%, -50%) scale(.25);
+      animation:celebrationShockwave 1.55s ease-out forwards;
+    }
+
+    .celebrationRocket{
+      position:absolute;
+      left:var(--rsx);
+      top:calc(var(--celebration-lock-height) + 28px);
+      z-index:2;
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:radial-gradient(circle, #fff 0 18%, #FFE39B 34%, #FF2D55 70%, transparent 100%);
+      box-shadow:
+        0 0 18px rgba(255,255,255,1),
+        0 0 38px rgba(255,45,85,.90),
+        0 0 72px rgba(255,205,90,.62);
+      transform:translate3d(0,0,0) scale(var(--rocket-scale));
+      animation:celebrationRocketFly .82s cubic-bezier(.16,.9,.18,1) forwards;
+    }
+
+    .celebrationRocket::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:5px;
+      height:104px;
+      border-radius:999px;
+      transform:translate(-50%, -6px);
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,45,85,.58), transparent);
+      filter:blur(1px);
+      opacity:.92;
+    }
+
+    .celebrationLightTrail{
+      position:absolute;
+      left:-18%;
+      top:var(--trail-top);
+      z-index:1;
+      width:138%;
+      height:3px;
+      border-radius:999px;
+      transform:rotate(var(--trail-rot));
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.88), rgba(255,45,85,.90), rgba(255,210,96,.76), transparent);
+      box-shadow:
+        0 0 16px rgba(255,255,255,.76),
+        0 0 42px rgba(255,45,85,.60),
+        0 0 74px rgba(255,204,102,.32);
+      opacity:0;
+      animation:celebrationLightTrail 2.45s ease-out forwards;
+      animation-delay:var(--trail-delay);
+    }
+
+    .celebrationVortexRing{
+      position:absolute;
+      left:50%;
+      top:50%;
+      z-index:0;
+      width:var(--ring-size);
+      height:var(--ring-size);
+      border-radius:50%;
+      border:2px solid rgba(255,231,166,.20);
+      background:
+        conic-gradient(from 0deg, transparent, rgba(255,45,85,.26), transparent, rgba(255,224,150,.22), transparent, rgba(181,23,255,.18), transparent);
+      box-shadow:
+        0 0 34px rgba(255,45,85,.24),
+        inset 0 0 30px rgba(255,255,255,.08);
+      transform:translate(-50%, -50%) scale(.30) rotate(0deg);
+      opacity:0;
+      animation:celebrationVortexRing 4.8s ease-out forwards;
+      animation-delay:var(--ring-delay);
+      mix-blend-mode:screen;
+    }
+
+    @keyframes celebrationDizzyScene{
+      0%,100%{ filter:saturate(1.18) brightness(1.02) hue-rotate(0deg); }
+      35%{ filter:saturate(1.55) brightness(1.14) hue-rotate(-8deg); }
+      70%{ filter:saturate(1.34) brightness(1.08) hue-rotate(8deg); }
+    }
+
+    @keyframes celebrationVortexBg{
+      0%{ transform:rotate(0deg) scale(1); }
+      50%{ transform:rotate(180deg) scale(1.08); }
+      100%{ transform:rotate(360deg) scale(1); }
+    }
+
+    @keyframes celebrationDizzyCard{
+      0%,100%{ transform:translateY(0) scale(1) rotate(0deg); }
+      25%{ transform:translateY(-3px) scale(1.018) rotate(-.55deg); }
+      50%{ transform:translateY(-6px) scale(1.032) rotate(.65deg); }
+      75%{ transform:translateY(-2px) scale(1.012) rotate(-.35deg); }
+    }
+
+    @keyframes celebrationHaloExplode{
+      0%,100%{ transform:translateX(-50%) scale(.88); opacity:.70; filter:blur(5px); }
+      50%{ transform:translateX(-50%) scale(1.22); opacity:1; filter:blur(2px); }
+    }
+
+    @keyframes celebrationFlashPulse{
+      0%{ filter:saturate(1.35) brightness(1.25); }
+      100%{ filter:saturate(1.18) brightness(1.02); }
+    }
+
+    @keyframes celebrationShockwave{
+      0%{ opacity:0; transform:translate(-50%, -50%) scale(.16); }
+      12%{ opacity:1; }
+      100%{ opacity:0; transform:translate(-50%, -50%) scale(11); }
+    }
+
+    @keyframes celebrationRocketFly{
+      0%{ opacity:0; transform:translate3d(0,0,0) scale(calc(var(--rocket-scale) * .62)); }
+      12%{ opacity:1; }
+      84%{ opacity:1; }
+      100%{ opacity:0; transform:translate3d(var(--rdx), var(--rdy), 0) scale(var(--rocket-scale)); }
+    }
+
+    @keyframes celebrationLightTrail{
+      0%{ opacity:0; clip-path:inset(0 100% 0 0); }
+      16%{ opacity:1; }
+      72%{ opacity:.9; }
+      100%{ opacity:0; clip-path:inset(0 0 0 100%); }
+    }
+
+    @keyframes celebrationVortexRing{
+      0%{ opacity:0; transform:translate(-50%, -50%) scale(.28) rotate(0deg); }
+      12%{ opacity:.82; }
+      72%{ opacity:.72; }
+      100%{ opacity:0; transform:translate(-50%, -50%) scale(1.28) rotate(var(--ring-rot)); }
+    }
+
     @media (max-width:420px){
       .celebrationOverlay{
         padding:calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
