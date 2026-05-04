@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.10";
+const APP_VERSION = "1.0.11";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
