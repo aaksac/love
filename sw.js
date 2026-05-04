@@ -1,4 +1,4 @@
-const CACHE_NAME = "biz-love-v3";
+const CACHE_NAME = "biz-love-v4";
 const CORE = [
   "./",
   "./index.html",
@@ -8,7 +8,7 @@ const CORE = [
   "./icon-192.png",
   "./icon-512.png",
   "./sw.js",
-  "./music/love.mp3"
+  "./music/song.mp3"
 ];
 
 self.addEventListener("install", (event) => {
