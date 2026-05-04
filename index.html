@@ -20,6 +20,8 @@
       --bg0:#05060A;
       --bg1:#0A0B12;
       --app-viewport-height:100dvh;
+      --celebration-lock-height:100svh;
+      --celebration-lock-top:0px;
 
       --card:rgba(255,255,255,.055);
       --stroke:rgba(255,255,255,.10);
@@ -38,8 +40,21 @@
       overflow-x:hidden;
     }
 
-    html.celebration-lock,
+    html.celebration-lock{
+      height:var(--celebration-lock-height);
+      overflow:hidden !important;
+      overscroll-behavior:none;
+      touch-action:none;
+    }
+
     body.celebration-lock{
+      position:fixed !important;
+      top:var(--celebration-lock-top) !important;
+      left:0 !important;
+      right:0 !important;
+      width:100% !important;
+      height:var(--celebration-lock-height) !important;
+      overflow:hidden !important;
       overscroll-behavior:none;
       touch-action:none;
     }
@@ -53,6 +68,11 @@
       background:
         radial-gradient(800px 600px at 50% -10%, rgba(255,45,85,.15), transparent 60%),
         linear-gradient(180deg,var(--bg0),var(--bg1));
+    }
+
+    body.appBooting .safe{
+      opacity:0;
+      visibility:hidden;
     }
 
     .safe{
@@ -217,22 +237,24 @@
     /* ANNIVERSARY CELEBRATION OVERLAY */
     .celebrationOverlay{
       position:fixed;
-      top:0;
-      left:0;
-      right:0;
-      bottom:auto;
-      width:100vw;
-      height:100vh;
-      height:var(--app-viewport-height);
-      min-height:100svh;
+      inset:0;
+      width:100%;
+      height:var(--celebration-lock-height);
+      min-height:0;
       z-index:9999;
       padding:calc(22px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom));
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      overscroll-behavior:contain;
+      overscroll-behavior:none;
       -webkit-overflow-scrolling:auto;
+      touch-action:none;
+      isolation:isolate;
+      contain:layout paint size;
+      transform:translate3d(0,0,0);
+      backface-visibility:hidden;
+      -webkit-backface-visibility:hidden;
       background:
         radial-gradient(520px 420px at 50% 18%, rgba(255,45,85,.28), transparent 64%),
         radial-gradient(360px 320px at 18% 78%, rgba(255,184,77,.18), transparent 70%),
@@ -240,9 +262,9 @@
         rgba(5,6,10,.72);
       backdrop-filter:blur(22px) saturate(1.18);
       -webkit-backdrop-filter:blur(22px) saturate(1.18);
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .36s ease;
+      opacity:1;
+      pointer-events:auto;
+      transition:none;
     }
 
     .celebrationOverlay.active{
@@ -395,6 +417,31 @@
       font-weight:850;
     }
 
+    .celebrationDismiss{
+      position:absolute;
+      top:calc(10px + env(safe-area-inset-top));
+      right:12px;
+      z-index:4;
+      width:42px;
+      height:42px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      background:rgba(0,0,0,.20);
+      color:rgba(255,255,255,.88);
+      font-size:22px;
+      font-weight:900;
+      line-height:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      cursor:pointer;
+    }
+
+    .celebrationDismiss:active{ transform:scale(.96); }
+
     .celebrationClose{
       position:relative;
       width:100%;
@@ -410,6 +457,8 @@
       box-shadow:0 16px 42px rgba(255,45,85,.28);
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      user-select:none;
     }
 
     .celebrationClose:active{ transform:scale(.985); }
@@ -741,7 +790,7 @@
   </style>
 </head>
 
-<body>
+<body class="appBooting">
   <div class="safe">
     <div class="wrap">
 
