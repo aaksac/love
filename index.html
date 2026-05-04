@@ -391,12 +391,16 @@
       position:absolute;
       left:max(14px, env(safe-area-inset-left));
       right:max(14px, env(safe-area-inset-right));
-      bottom:calc(16px + env(safe-area-inset-bottom));
+      bottom:calc(var(--celebration-viewport-bleed) + 16px + env(safe-area-inset-bottom));
       z-index:4;
       width:auto;
       max-width:520px;
+      max-height:calc(var(--celebration-lock-height) - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
       margin:0 auto;
       padding:14px 14px 12px;
+      overflow:auto;
+      overscroll-behavior:contain;
+      scrollbar-width:none;
       border-radius:26px;
       color:rgba(255,255,255,.94);
       text-align:center;
@@ -411,6 +415,10 @@
       backdrop-filter:blur(18px) saturate(1.28);
       -webkit-backdrop-filter:blur(18px) saturate(1.28);
       transform:translate3d(0,0,0);
+    }
+
+    .celebrationCard::-webkit-scrollbar{
+      display:none;
     }
 
     .celebrationEyebrow{
@@ -582,6 +590,42 @@
       background:
         radial-gradient(circle at 50% 20%, rgba(255,45,85,.52), transparent 42%),
         radial-gradient(circle at 50% 55%, rgba(255,188,82,.34), transparent 58%);
+    }
+
+    @media (max-height: 680px){
+      .celebrationCard{
+        bottom:calc(var(--celebration-viewport-bleed) + 10px + env(safe-area-inset-bottom));
+        padding:11px 12px 10px;
+        border-radius:22px;
+      }
+
+      .celebrationEyebrow{
+        min-height:20px;
+        padding:4px 10px;
+        margin-bottom:6px;
+        font-size:10px;
+      }
+
+      .celebrationTitle{
+        font-size:clamp(16px, 4.8vw, 21px);
+      }
+
+      .celebrationText{
+        margin-top:5px;
+        font-size:12.5px;
+        line-height:1.28;
+      }
+
+      .celebrationMeta{
+        margin-top:6px;
+        font-size:11px;
+      }
+
+      .celebrationClose{
+        margin-top:9px;
+        min-height:42px;
+        padding:11px 14px;
+      }
     }
 
     @keyframes celebrationArtworkIdle{
