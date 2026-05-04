@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.2";
+const APP_VERSION = "1.0.3";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -15,6 +15,72 @@ function escapeHTML(value){
     "'":"&#039;",
     '"':"&quot;"
   }[ch]));
+}
+
+let celebrationScrollY = 0;
+let celebrationViewportCleanup = null;
+
+function syncAppViewportHeight(){
+  const viewportHeight = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight;
+  document.documentElement.style.setProperty("--app-viewport-height", `${Math.round(viewportHeight)}px`);
+}
+
+function startViewportSync(){
+  syncAppViewportHeight();
+
+  if (celebrationViewportCleanup) return;
+
+  const target = window.visualViewport || window;
+  const handler = () => requestAnimationFrame(syncAppViewportHeight);
+
+  target.addEventListener("resize", handler, { passive:true });
+  target.addEventListener("scroll", handler, { passive:true });
+  window.addEventListener("orientationchange", handler, { passive:true });
+
+  celebrationViewportCleanup = () => {
+    target.removeEventListener("resize", handler);
+    target.removeEventListener("scroll", handler);
+    window.removeEventListener("orientationchange", handler);
+    celebrationViewportCleanup = null;
+  };
+}
+
+function stopViewportSync(){
+  if (celebrationViewportCleanup) celebrationViewportCleanup();
+}
+
+function lockPageForCelebration(){
+  celebrationScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  startViewportSync();
+
+  document.documentElement.classList.add("celebration-lock");
+  document.body.classList.add("celebration-lock");
+
+  Object.assign(document.body.style, {
+    position:"fixed",
+    top:`-${celebrationScrollY}px`,
+    left:"0",
+    right:"0",
+    width:"100%",
+    overflow:"hidden"
+  });
+}
+
+function unlockPageForCelebration(){
+  document.documentElement.classList.remove("celebration-lock");
+  document.body.classList.remove("celebration-lock");
+
+  Object.assign(document.body.style, {
+    position:"",
+    top:"",
+    left:"",
+    right:"",
+    width:"",
+    overflow:""
+  });
+
+  window.scrollTo(0, celebrationScrollY);
+  stopViewportSync();
 }
 
 // Yıl-ay-gün-saat-dk-sn “takvimsel” fark
@@ -386,6 +452,8 @@ function showCelebrationIfToday(events){
 
   if (!todaysEvents.length) return;
 
+  lockPageForCelebration();
+
   const primary = todaysEvents[0];
   const years = Math.max(0, now.getFullYear() - primary.base.getFullYear());
   const overlay = document.createElement("div");
@@ -444,9 +512,15 @@ function showCelebrationIfToday(events){
   close.className = "celebrationClose";
   close.textContent = "Bugünü Kutla";
 
+  let celebrationClosing = false;
   function removeOverlay(){
+    if (celebrationClosing) return;
+    celebrationClosing = true;
     overlay.classList.remove("active");
-    window.setTimeout(() => overlay.remove(), 260);
+    window.setTimeout(() => {
+      overlay.remove();
+      unlockPageForCelebration();
+    }, 260);
   }
 
   close.addEventListener("click", removeOverlay);
@@ -464,7 +538,6 @@ function showCelebrationIfToday(events){
 
   requestAnimationFrame(() => {
     overlay.classList.add("active");
-    close.focus({ preventScroll:true });
   });
 }
 
@@ -508,6 +581,7 @@ function setupMusic(){
 }
 
 (async function main(){
+  syncAppViewportHeight();
   const events = await loadEvents();
 
   // Akif’in altına Baba ve Anne doğum gününü koymak için:
