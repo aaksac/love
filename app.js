@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.3";
+const APP_VERSION = "1.0.4";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -444,6 +444,102 @@ function createParticleLayer(parent){
   });
 }
 
+
+function createCelebrationFireworkLayer(parent){
+  const layer = document.createElement("div");
+  layer.className = "celebrationFireworkLayer";
+  layer.setAttribute("aria-hidden", "true");
+  parent.appendChild(layer);
+  return layer;
+}
+
+function createHeartFirework(layer, xPercent, yPercent, scale = 1){
+  if (!layer) return;
+
+  const firework = document.createElement("div");
+  firework.className = "heartFirework";
+  firework.style.setProperty("--fx", `${xPercent}%`);
+  firework.style.setProperty("--fy", `${yPercent}%`);
+  firework.style.setProperty("--fw-scale", String(scale));
+
+  const core = document.createElement("span");
+  core.className = "heartFireworkCore";
+  firework.appendChild(core);
+
+  const colors = ["#FFF6D8", "#FFD166", "#FF5C8A", "#FF2D55", "#FF9FB2"];
+  const total = 46;
+
+  for (let i = 0; i < total; i++){
+    const t = (Math.PI * 2 * i) / total;
+
+    // Kalp eğrisi: x=16sin³t, y=13cost-5cos2t-2cos3t-cos4t
+    const hx = 16 * Math.pow(Math.sin(t), 3);
+    const hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+    const spark = document.createElement("span");
+    spark.className = "heartSpark";
+    spark.style.setProperty("--tx", `${hx * 4.8 * scale}px`);
+    spark.style.setProperty("--ty", `${hy * 4.8 * scale}px`);
+    spark.style.setProperty("--delay", `${(i % 7) * 0.012}s`);
+    spark.style.setProperty("--spark", colors[i % colors.length]);
+    spark.style.setProperty("--spark-size", `${Math.max(3.5, 6.5 * scale)}px`);
+    firework.appendChild(spark);
+  }
+
+  layer.appendChild(firework);
+  window.setTimeout(() => firework.remove(), 1900);
+}
+
+function createMusicNotes(parent){
+  const notes = ["♪", "♫", "♬", "♩", "𝄞"];
+  const positions = [
+    [12,72,-34,-96,0], [22,58,-18,-118,90], [78,62,24,-122,160],
+    [88,74,34,-106,240], [15,38,-30,-86,320], [84,38,30,-88,400]
+  ];
+
+  positions.forEach((p, i) => {
+    const note = document.createElement("span");
+    note.className = "celebrationMusicNote";
+    note.textContent = notes[i % notes.length];
+    note.style.setProperty("--nx", `${p[0]}%`);
+    note.style.setProperty("--ny", `${p[1]}%`);
+    note.style.setProperty("--ndx", `${p[2]}px`);
+    note.style.setProperty("--ndy", `${p[3]}px`);
+    note.style.setProperty("--note-delay", `${p[4]}ms`);
+    parent.appendChild(note);
+    window.setTimeout(() => note.remove(), 2300 + p[4]);
+  });
+}
+
+function launchHeartFireworkShow(overlay){
+  const layer = overlay.querySelector(".celebrationFireworkLayer");
+  const bursts = [
+    [50, 17, 1.18, 0],
+    [22, 30, .82, 260],
+    [78, 31, .84, 520],
+    [50, 42, .62, 850],
+    [14, 63, .54, 1100],
+    [86, 64, .54, 1320]
+  ];
+
+  bursts.forEach(([x, y, scale, delay]) => {
+    window.setTimeout(() => createHeartFirework(layer, x, y, scale), delay);
+  });
+}
+
+async function startCelebrationMusic(){
+  const music = document.getElementById("bgMusic");
+  if (!music) return false;
+
+  music.volume = 0.72;
+
+  if (music.paused){
+    await music.play();
+  }
+
+  return true;
+}
+
 function showCelebrationIfToday(events){
   const now = new Date();
   const todaysEvents = events
@@ -463,6 +559,7 @@ function showCelebrationIfToday(events){
   overlay.setAttribute("aria-label", "Özel gün kutlaması");
 
   createParticleLayer(overlay);
+  createCelebrationFireworkLayer(overlay);
 
   const card = document.createElement("div");
   card.className = "celebrationCard";
@@ -512,7 +609,9 @@ function showCelebrationIfToday(events){
   close.className = "celebrationClose";
   close.textContent = "Bugünü Kutla";
 
+  let celebrationStarted = false;
   let celebrationClosing = false;
+
   function removeOverlay(){
     if (celebrationClosing) return;
     celebrationClosing = true;
@@ -523,7 +622,30 @@ function showCelebrationIfToday(events){
     }, 260);
   }
 
-  close.addEventListener("click", removeOverlay);
+  close.addEventListener("click", async (e) => {
+    e.stopPropagation();
+
+    overlay.classList.add("celebrating");
+    createMusicNotes(overlay);
+    launchHeartFireworkShow(overlay);
+
+    if (!celebrationStarted){
+      celebrationStarted = true;
+      close.classList.add("celebrating");
+      close.textContent = "Kutlama Başladı ❤️";
+
+      try{
+        await startCelebrationMusic();
+      } catch (err){
+        console.log("Kutlama müziği başlatılamadı:", err);
+      }
+
+      window.setTimeout(() => {
+        close.textContent = "Tekrar Kutla ❤️";
+      }, 1800);
+    }
+  });
+
   overlay.addEventListener("click", removeOverlay);
   window.addEventListener("keydown", function onKey(e){
     if (e.key === "Escape"){
@@ -545,39 +667,46 @@ function showCelebrationIfToday(events){
 function setupMusic(){
   const music = document.getElementById("bgMusic");
   const btn = document.getElementById("musicBtn");
-  let playing = false;
 
   if (!music || !btn) return;
 
   music.volume = 0.6;
 
+  function syncMusicUI(){
+    if (music.paused){
+      btn.textContent = "🎵 Müzik Başlat";
+      btn.classList.remove("playing");
+      document.querySelectorAll(".heart").forEach(h=>{
+        h.style.filter =
+          "drop-shadow(0 10px 22px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(255,45,85,.18))";
+      });
+    } else {
+      btn.textContent = "⏸ Müzik Durdur";
+      btn.classList.add("playing");
+      document.querySelectorAll(".heart").forEach(h=>{
+        h.style.filter =
+          "drop-shadow(0 10px 22px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(255,45,85,.38))";
+      });
+    }
+  }
+
   btn.addEventListener("click", async () => {
     try{
-      if (!playing){
+      if (music.paused){
         await music.play();
-        playing = true;
-        btn.textContent = "⏸ Müzik Durdur";
-        btn.classList.add("playing");
-
-        document.querySelectorAll(".heart").forEach(h=>{
-          h.style.filter =
-            "drop-shadow(0 10px 22px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(255,45,85,.38))";
-        });
       } else {
         music.pause();
-        playing = false;
-        btn.textContent = "🎵 Müzik Başlat";
-        btn.classList.remove("playing");
-
-        document.querySelectorAll(".heart").forEach(h=>{
-          h.style.filter =
-            "drop-shadow(0 10px 22px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(255,45,85,.18))";
-        });
       }
+      syncMusicUI();
     } catch (e){
       console.log("Müzik başlatılamadı:", e);
     }
   });
+
+  music.addEventListener("play", syncMusicUI);
+  music.addEventListener("pause", syncMusicUI);
+  music.addEventListener("ended", syncMusicUI);
+  syncMusicUI();
 }
 
 (async function main(){
