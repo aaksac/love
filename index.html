@@ -389,14 +389,14 @@
 
     .celebrationCard{
       position:absolute;
-      left:max(14px, env(safe-area-inset-left));
-      right:max(14px, env(safe-area-inset-right));
-      bottom:calc(var(--celebration-viewport-bleed) + 16px + env(safe-area-inset-bottom));
+      left:50%;
+      right:auto;
+      bottom:calc(var(--celebration-viewport-bleed) + 52px + env(safe-area-inset-bottom));
       z-index:4;
-      width:auto;
+      width:min(calc(100vw - 28px - env(safe-area-inset-left) - env(safe-area-inset-right)), 520px);
       max-width:520px;
-      max-height:calc(var(--celebration-lock-height) - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-      margin:0 auto;
+      max-height:calc(var(--celebration-lock-height) - 78px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      margin:0;
       padding:14px 14px 12px;
       overflow:auto;
       overscroll-behavior:contain;
@@ -414,7 +414,7 @@
         inset 0 1px 0 rgba(255,255,255,.18);
       backdrop-filter:blur(18px) saturate(1.28);
       -webkit-backdrop-filter:blur(18px) saturate(1.28);
-      transform:translate3d(0,0,0);
+      transform:translate3d(-50%,0,0);
     }
 
     .celebrationCard::-webkit-scrollbar{
@@ -594,7 +594,8 @@
 
     @media (max-height: 680px){
       .celebrationCard{
-        bottom:calc(var(--celebration-viewport-bleed) + 10px + env(safe-area-inset-bottom));
+        bottom:calc(var(--celebration-viewport-bleed) + 34px + env(safe-area-inset-bottom));
+        max-height:calc(var(--celebration-lock-height) - 56px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
         padding:11px 12px 10px;
         border-radius:22px;
       }
