@@ -12,6 +12,7 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preload" as="image" href="assets/celebration-love-show.png">
 
   <title>Biz</title>
 
@@ -240,421 +241,326 @@
       inset:0;
       width:100%;
       height:var(--celebration-lock-height);
-      min-height:0;
       z-index:9999;
-      padding:calc(22px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom));
-      display:flex;
-      align-items:center;
-      justify-content:center;
       overflow:hidden;
       overscroll-behavior:none;
       -webkit-overflow-scrolling:auto;
       touch-action:none;
       isolation:isolate;
       contain:layout paint size;
+      background:
+        radial-gradient(680px 520px at 50% 12%, rgba(255,45,85,.34), transparent 68%),
+        linear-gradient(180deg, #150011 0%, #09040a 100%);
+      opacity:1;
+      pointer-events:auto;
       transform:translate3d(0,0,0);
       backface-visibility:hidden;
       -webkit-backface-visibility:hidden;
-      background:
-        radial-gradient(520px 420px at 50% 18%, rgba(255,45,85,.28), transparent 64%),
-        radial-gradient(360px 320px at 18% 78%, rgba(255,184,77,.18), transparent 70%),
-        radial-gradient(360px 320px at 86% 82%, rgba(255,255,255,.10), transparent 72%),
-        rgba(5,6,10,.72);
-      backdrop-filter:blur(22px) saturate(1.18);
-      -webkit-backdrop-filter:blur(22px) saturate(1.18);
-      opacity:1;
-      pointer-events:auto;
-      transition:none;
     }
 
-    .celebrationOverlay.active{
-      opacity:1;
-      pointer-events:auto;
+    .celebrationArtwork{
+      position:absolute;
+      inset:0;
+      z-index:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center center;
+      user-select:none;
+      -webkit-user-drag:none;
+      pointer-events:none;
+      transform:translate3d(0,0,0) scale(1.012);
+      filter:saturate(1.08) contrast(1.04) brightness(.96);
+      animation:celebrationArtworkIdle 14s ease-in-out infinite;
     }
 
-    .celebrationCard{
-      position:relative;
-      z-index:3;
-      width:min(92vw, 440px);
-      padding:30px 22px 22px;
-      border-radius:34px;
-      text-align:center;
-      color:rgba(255,255,255,.94);
+    .celebrationOverlay::before{
+      content:"";
+      position:absolute;
+      inset:-18%;
+      z-index:1;
+      pointer-events:none;
       background:
-        linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.07)),
-        rgba(16,17,26,.72);
-      border:1px solid rgba(255,255,255,.18);
-      box-shadow:
-        0 34px 100px rgba(0,0,0,.62),
-        inset 0 1px 0 rgba(255,255,255,.20);
-      transform:translateY(14px) scale(.96);
-      transition:transform .42s cubic-bezier(.2,.9,.2,1);
+        conic-gradient(from 0deg at 50% 48%, transparent 0 12%, rgba(255,214,112,.24) 15%, transparent 21%, rgba(255,45,135,.22) 32%, transparent 41%, rgba(255,255,255,.16) 52%, transparent 61%, rgba(255,179,71,.22) 72%, transparent 86%);
+      mix-blend-mode:screen;
+      opacity:.42;
+      filter:blur(8px) saturate(1.2);
+      animation:celebrationVortex 18s linear infinite;
+    }
+
+    .celebrationOverlay::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.04) 0%, rgba(0,0,0,.10) 48%, rgba(0,0,0,.50) 100%),
+        radial-gradient(420px 210px at 50% 88%, rgba(0,0,0,.60), transparent 72%),
+        radial-gradient(460px 460px at 50% 34%, transparent 40%, rgba(0,0,0,.08) 100%);
+    }
+
+    .celebrationLightLayer{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
       overflow:hidden;
     }
 
-    .celebrationOverlay.active .celebrationCard{
-      transform:translateY(0) scale(1);
-    }
-
-    .celebrationCard::before{
+    .celebrationLightLayer::before,
+    .celebrationLightLayer::after{
       content:"";
       position:absolute;
-      inset:-1px;
-      border-radius:inherit;
-      pointer-events:none;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.34), transparent 28%, rgba(255,45,85,.18) 64%, rgba(255,255,255,.22));
-      mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      mask-composite:exclude;
-      -webkit-mask-composite:xor;
-      padding:1px;
-      opacity:.8;
-    }
-
-    .celebrationHalo{
-      position:absolute;
-      width:210px;
-      height:210px;
       left:50%;
-      top:18px;
-      transform:translateX(-50%);
+      top:46%;
+      width:92vmax;
+      height:92vmax;
       border-radius:50%;
-      background:radial-gradient(circle, rgba(255,45,85,.38), rgba(255,45,85,.10) 46%, transparent 68%);
-      filter:blur(4px);
-      animation:celebrationPulse 2.35s ease-in-out infinite;
+      border:2px solid rgba(255,222,128,.28);
+      box-shadow:
+        0 0 28px rgba(255,215,118,.40),
+        inset 0 0 28px rgba(255,45,85,.20);
+      transform:translate(-50%, -50%) rotate(0deg) scale(.70);
+      opacity:.42;
+      animation:celebrationOrbit 9s linear infinite;
     }
 
-    .celebrationIcon{
-      position:relative;
-      width:94px;
-      height:94px;
-      margin:0 auto 16px;
-      border-radius:32px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:48px;
+    .celebrationLightLayer::after{
+      width:70vmax;
+      height:70vmax;
+      border-color:rgba(255,45,135,.26);
+      animation-duration:6.5s;
+      animation-direction:reverse;
+      opacity:.34;
+    }
+
+    .celebrationCard{
+      position:absolute;
+      left:max(14px, env(safe-area-inset-left));
+      right:max(14px, env(safe-area-inset-right));
+      bottom:calc(16px + env(safe-area-inset-bottom));
+      z-index:4;
+      width:auto;
+      max-width:520px;
+      margin:0 auto;
+      padding:14px 14px 12px;
+      border-radius:26px;
+      color:rgba(255,255,255,.94);
+      text-align:center;
       background:
-        radial-gradient(circle at 35% 25%, rgba(255,255,255,.28), transparent 34%),
-        linear-gradient(145deg, rgba(255,45,85,.90), rgba(255,107,129,.42));
-      border:1px solid rgba(255,255,255,.22);
+        linear-gradient(180deg, rgba(38,0,22,.58), rgba(12,0,9,.74)),
+        rgba(12,0,9,.70);
+      border:1px solid rgba(255,221,142,.34);
       box-shadow:
-        0 20px 50px rgba(255,45,85,.24),
-        inset 0 1px 0 rgba(255,255,255,.34);
-      animation:celebrationFloat 2.8s ease-in-out infinite;
+        0 22px 70px rgba(0,0,0,.66),
+        0 0 46px rgba(255,45,85,.20),
+        inset 0 1px 0 rgba(255,255,255,.18);
+      backdrop-filter:blur(18px) saturate(1.28);
+      -webkit-backdrop-filter:blur(18px) saturate(1.28);
+      transform:translate3d(0,0,0);
     }
 
     .celebrationEyebrow{
-      position:relative;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:30px;
-      padding:7px 12px;
+      min-height:24px;
+      padding:5px 12px;
       border-radius:999px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.13);
-      color:rgba(255,255,255,.78);
+      margin-bottom:8px;
       font-size:11px;
       font-weight:950;
-      letter-spacing:1.25px;
+      letter-spacing:1.1px;
       text-transform:uppercase;
+      color:#FFE7A6;
+      background:rgba(255,255,255,.09);
+      border:1px solid rgba(255,231,166,.24);
+      text-shadow:0 0 12px rgba(255,205,92,.38);
     }
 
     .celebrationTitle{
-      position:relative;
-      margin:14px auto 8px;
-      max-width:360px;
-      font-size:clamp(24px, 7vw, 34px);
-      line-height:1.04;
-      font-weight:1000;
-      letter-spacing:-.8px;
+      font-size:clamp(18px, 5.2vw, 24px);
+      line-height:1.12;
+      font-weight:950;
+      letter-spacing:.15px;
+      color:#fff;
+      text-shadow:
+        0 2px 14px rgba(0,0,0,.62),
+        0 0 22px rgba(255,45,85,.42);
     }
 
     .celebrationText{
-      position:relative;
-      max-width:360px;
-      margin:0 auto;
-      color:rgba(255,255,255,.76);
-      font-size:15px;
-      line-height:1.55;
-      font-weight:650;
+      margin:7px auto 0;
+      max-width:36em;
+      font-size:13.5px;
+      line-height:1.36;
+      color:rgba(255,255,255,.84);
     }
 
     .celebrationMeta{
-      position:relative;
-      margin:18px auto 0;
-      padding:12px 14px;
-      border-radius:22px;
-      background:rgba(0,0,0,.22);
-      border:1px solid rgba(255,255,255,.10);
-      color:rgba(255,255,255,.86);
-      font-size:13px;
-      line-height:1.45;
+      display:inline-flex;
+      justify-content:center;
+      margin-top:9px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:11.5px;
+      font-weight:750;
+      color:rgba(255,240,205,.86);
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
       font-variant-numeric:tabular-nums;
     }
 
     .celebrationEvents{
-      position:relative;
       display:flex;
       flex-direction:column;
-      gap:8px;
-      margin-top:14px;
+      gap:6px;
+      margin-top:10px;
     }
 
     .celebrationEventMini{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      padding:10px 12px;
-      border-radius:18px;
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.09);
-      color:rgba(255,255,255,.84);
-      font-size:13px;
-      font-weight:850;
+      padding:7px 9px;
+      border-radius:14px;
+      font-size:12px;
+      font-weight:800;
+      color:rgba(255,255,255,.86);
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
     }
 
     .celebrationDismiss{
       position:absolute;
-      top:calc(10px + env(safe-area-inset-top));
-      right:12px;
-      z-index:4;
+      top:calc(12px + env(safe-area-inset-top));
+      right:calc(12px + env(safe-area-inset-right));
+      z-index:5;
       width:42px;
       height:42px;
-      border:1px solid rgba(255,255,255,.14);
       border-radius:999px;
-      background:rgba(0,0,0,.20);
-      color:rgba(255,255,255,.88);
-      font-size:22px;
-      font-weight:900;
+      border:1px solid rgba(255,255,255,.20);
+      background:rgba(0,0,0,.36);
+      color:#fff;
+      font-size:25px;
       line-height:1;
       display:flex;
       align-items:center;
       justify-content:center;
-      box-shadow:0 10px 28px rgba(0,0,0,.35);
-      -webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;
       cursor:pointer;
+      box-shadow:0 12px 38px rgba(0,0,0,.45);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      -webkit-tap-highlight-color:transparent;
     }
 
     .celebrationDismiss:active{ transform:scale(.96); }
 
     .celebrationClose{
-      position:relative;
       width:100%;
       min-height:48px;
-      margin-top:18px;
+      margin-top:11px;
       border:0;
       border-radius:999px;
-      background:linear-gradient(135deg, #FF2D55, #FF6B81);
-      color:white;
+      color:#fff;
       font-size:15px;
       font-weight:950;
       letter-spacing:.2px;
-      box-shadow:0 16px 42px rgba(255,45,85,.28);
       cursor:pointer;
+      background:linear-gradient(135deg, #FF2D55, #FF2FA7, #FFB347, #FF2D55);
+      background-size:240% 240%;
+      box-shadow:
+        0 15px 42px rgba(255,45,85,.38),
+        0 0 28px rgba(255,209,102,.22),
+        inset 0 1px 0 rgba(255,255,255,.28);
+      transition:transform .14s ease, filter .14s ease;
       -webkit-tap-highlight-color:transparent;
-      touch-action:manipulation;
       user-select:none;
     }
 
     .celebrationClose:active{ transform:scale(.985); }
 
-    .celebrationParticle{
-      position:absolute;
-      z-index:2;
-      left:var(--x);
-      top:var(--y);
-      font-size:var(--s);
-      opacity:.82;
-      filter:drop-shadow(0 10px 18px rgba(0,0,0,.36));
-      animation:celebrationDrift var(--d) ease-in-out infinite;
-      animation-delay:var(--delay);
-      pointer-events:none;
-      user-select:none;
-    }
-
-    @keyframes celebrationPulse{
-      0%,100%{ transform:translateX(-50%) scale(.94); opacity:.72; }
-      50%{ transform:translateX(-50%) scale(1.08); opacity:1; }
-    }
-
-    @keyframes celebrationFloat{
-      0%,100%{ transform:translateY(0) rotate(-2deg); }
-      50%{ transform:translateY(-8px) rotate(2deg); }
-    }
-
-    @keyframes celebrationDrift{
-      0%,100%{ transform:translate3d(0,0,0) rotate(0deg); }
-      50%{ transform:translate3d(0,-18px,0) rotate(10deg); }
-    }
-
-
-
-    .celebrationOverlay.celebrating{
-      background:
-        radial-gradient(620px 480px at 50% 12%, rgba(255,45,85,.48), transparent 66%),
-        radial-gradient(520px 420px at 20% 70%, rgba(255,204,102,.32), transparent 72%),
-        radial-gradient(520px 420px at 84% 74%, rgba(255,255,255,.18), transparent 72%),
-        radial-gradient(900px 700px at 50% 110%, rgba(255,45,85,.22), transparent 70%),
-        rgba(5,6,10,.78);
-    }
-
-    .celebrationOverlay.celebrationMinuteShow{
-      animation:celebrationSceneGlow 5.6s ease-in-out infinite;
-    }
-
-    .celebrationOverlay.celebrationMinuteShow .celebrationCard{
-      box-shadow:
-        0 38px 110px rgba(0,0,0,.66),
-        0 0 54px rgba(255,45,85,.20),
-        0 0 74px rgba(255,199,92,.12),
-        inset 0 1px 0 rgba(255,255,255,.24);
-    }
-
-    .celebrationOverlay.celebrationMinuteShow .celebrationIcon{
-      animation:
-        celebrationFloat 2.2s ease-in-out infinite,
-        celebrationIconGlow 1.85s ease-in-out infinite;
-    }
-
-    .celebrationFireworkLayer{
-      position:absolute;
-      inset:0;
-      z-index:1;
-      overflow:hidden;
-      pointer-events:none;
-      contain:layout paint;
-    }
-
-    .heartFirework{
-      position:absolute;
-      left:var(--fx);
-      top:var(--fy);
-      width:1px;
-      height:1px;
-      transform:translate(-50%, -50%);
-      pointer-events:none;
-    }
-
-    .heartFireworkCore{
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:22px;
-      height:22px;
-      border-radius:999px;
-      background:radial-gradient(circle, #fff 0 18%, #FFE39B 28%, rgba(255,45,85,.72) 62%, transparent 74%);
-      box-shadow:
-        0 0 22px rgba(255,255,255,.98),
-        0 0 52px rgba(255,45,85,.86),
-        0 0 84px rgba(255,195,84,.70);
-      opacity:0;
-      transform:translate(-50%, -50%) scale(.25);
-      animation:heartFireworkCore 1.55s ease-out forwards;
-    }
-
-    .heartSpark{
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:var(--spark-size);
-      height:var(--spark-size);
-      border-radius:999px;
-      background:radial-gradient(circle, #fff 0 20%, var(--spark) 34%, rgba(255,255,255,.05) 100%);
-      box-shadow:
-        0 0 10px rgba(255,255,255,.9),
-        0 0 18px var(--spark),
-        0 0 32px rgba(255,45,85,.42);
-      opacity:0;
-      transform:translate(-50%, -50%) scale(.18);
-      animation:heartSparkFly 2.35s cubic-bezier(.12,.82,.22,1) forwards;
-      animation-delay:var(--delay);
-    }
-
-    .heartSparkBig{
-      width:calc(var(--spark-size) * 1.35);
-      height:calc(var(--spark-size) * 1.35);
-      box-shadow:
-        0 0 14px rgba(255,255,255,.96),
-        0 0 28px var(--spark),
-        0 0 48px rgba(255,45,85,.50);
-    }
-
-    .celebrationRingSpark{
-      opacity:.95;
-      filter:blur(.15px);
-    }
-
-    .celebrationConfetti{
-      position:absolute;
-      left:var(--cx);
-      top:-34px;
-      z-index:2;
-      font-size:var(--csize);
-      color:#FFE7A6;
-      opacity:0;
-      pointer-events:none;
-      user-select:none;
-      text-shadow:
-        0 0 8px rgba(255,255,255,.86),
-        0 0 18px rgba(255,202,98,.78),
-        0 0 34px rgba(255,45,85,.40);
-      transform:translate3d(0,-30px,0) rotate(0deg) scale(.78);
-      animation:celebrationConfettiFall var(--cdur) linear forwards;
-      animation-delay:var(--cdelay);
+    .celebrationClose.celebrating{
+      animation:celebrationButtonGlow 1.35s ease-in-out infinite;
+      filter:saturate(1.12) brightness(1.04);
     }
 
     .celebrationMusicNote{
       position:absolute;
       left:var(--nx);
       top:var(--ny);
-      z-index:2;
+      z-index:5;
       color:#FFE7A6;
-      font-size:clamp(26px, 8vw, 46px);
-      font-weight:900;
+      font-size:clamp(28px, 8.5vw, 48px);
+      font-weight:950;
       text-shadow:
-        0 0 10px rgba(255,255,255,.88),
-        0 0 22px rgba(255,198,88,.82),
-        0 0 42px rgba(255,45,85,.45);
+        0 0 10px rgba(255,255,255,.92),
+        0 0 24px rgba(255,198,88,.88),
+        0 0 46px rgba(255,45,135,.54);
       pointer-events:none;
       opacity:0;
       transform:translate3d(0,0,0) scale(.72) rotate(-8deg);
-      animation:musicNoteFloat 3s ease-out forwards;
+      animation:musicNoteFloat 3.2s ease-out forwards;
       animation-delay:var(--note-delay);
     }
 
-    .celebrationClose.celebrating{
-      background:linear-gradient(135deg, #FF2D55, #FFB347, #FF6B81);
-      background-size:220% 220%;
-      animation:celebrationButtonGlow 1.2s ease-in-out infinite;
-      box-shadow:
-        0 18px 48px rgba(255,45,85,.38),
-        0 0 28px rgba(255,204,102,.28);
+    .celebrationOverlay.celebrationMinuteShow .celebrationArtwork{
+      animation:celebrationArtworkShow 60s cubic-bezier(.16,.78,.18,1) forwards;
+      filter:saturate(1.24) contrast(1.09) brightness(1.04);
     }
 
-    @keyframes heartFireworkCore{
-      0%{ opacity:0; transform:translate(-50%, -50%) scale(.18); }
-      10%{ opacity:1; transform:translate(-50%, -50%) scale(1.38); }
-      46%{ opacity:.92; transform:translate(-50%, -50%) scale(.92); }
-      100%{ opacity:0; transform:translate(-50%, -50%) scale(.36); }
+    .celebrationOverlay.celebrationMinuteShow::before{
+      opacity:.66;
+      animation:celebrationVortex 7.5s linear infinite;
     }
 
-    @keyframes heartSparkFly{
-      0%{ opacity:0; transform:translate(-50%, -50%) scale(.12); }
-      10%{ opacity:1; }
-      68%{ opacity:1; }
-      100%{ opacity:0; transform:translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1.04); }
+    .celebrationOverlay.celebrationMinuteShow .celebrationLightLayer::before{
+      opacity:.62;
+      animation-duration:4.8s;
     }
 
-    @keyframes celebrationConfettiFall{
-      0%{ opacity:0; transform:translate3d(0,-36px,0) rotate(0deg) scale(.72); }
-      9%{ opacity:1; }
-      86%{ opacity:.94; }
-      100%{ opacity:0; transform:translate3d(var(--cdx), calc(var(--celebration-lock-height) + 88px), 0) rotate(var(--crot)) scale(1.05); }
+    .celebrationOverlay.celebrationMinuteShow .celebrationLightLayer::after{
+      opacity:.54;
+      animation-duration:3.9s;
+    }
+
+    .celebrationOverlay.celebrationEncore .celebrationLightLayer{
+      animation:celebrationFlash 1.5s ease-out both;
+    }
+
+    .celebrationArtworkFallback .celebrationLightLayer{
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,45,85,.52), transparent 42%),
+        radial-gradient(circle at 50% 55%, rgba(255,188,82,.34), transparent 58%);
+    }
+
+    @keyframes celebrationArtworkIdle{
+      0%,100%{ transform:translate3d(0,0,0) scale(1.012); }
+      50%{ transform:translate3d(0,-1.2%,0) scale(1.046); }
+    }
+
+    @keyframes celebrationArtworkShow{
+      0%{ transform:translate3d(0,0,0) scale(1.015); }
+      16%{ transform:translate3d(-1.2%,-1.8%,0) scale(1.08); }
+      34%{ transform:translate3d(1.1%,-.8%,0) scale(1.12); }
+      54%{ transform:translate3d(-.8%,-2.4%,0) scale(1.16); }
+      76%{ transform:translate3d(1.1%,-1.3%,0) scale(1.19); }
+      100%{ transform:translate3d(0,-2%,0) scale(1.13); }
+    }
+
+    @keyframes celebrationVortex{
+      0%{ transform:rotate(0deg) scale(1); }
+      100%{ transform:rotate(360deg) scale(1); }
+    }
+
+    @keyframes celebrationOrbit{
+      0%{ transform:translate(-50%, -50%) rotate(0deg) scale(.70); }
+      50%{ transform:translate(-50%, -50%) rotate(180deg) scale(.86); }
+      100%{ transform:translate(-50%, -50%) rotate(360deg) scale(.70); }
+    }
+
+    @keyframes celebrationFlash{
+      0%{ filter:brightness(1); opacity:1; }
+      18%{ filter:brightness(1.75) saturate(1.45); opacity:1; }
+      100%{ filter:brightness(1); opacity:1; }
     }
 
     @keyframes musicNoteFloat{
@@ -664,329 +570,34 @@
       100%{ opacity:0; transform:translate3d(var(--ndx), var(--ndy), 0) scale(1.18) rotate(12deg); }
     }
 
-    @keyframes celebrationSceneGlow{
-      0%,100%{ filter:saturate(1.06) brightness(1); }
-      50%{ filter:saturate(1.28) brightness(1.08); }
-    }
-
-    @keyframes celebrationIconGlow{
-      0%,100%{
-        box-shadow:
-          0 20px 50px rgba(255,45,85,.24),
-          inset 0 1px 0 rgba(255,255,255,.34);
-      }
-      50%{
-        box-shadow:
-          0 26px 62px rgba(255,45,85,.42),
-          0 0 42px rgba(255,210,120,.24),
-          inset 0 1px 0 rgba(255,255,255,.42);
-      }
-    }
-
     @keyframes celebrationButtonGlow{
-      0%,100%{ background-position:0% 50%; transform:translateY(0); }
-      50%{ background-position:100% 50%; transform:translateY(-1px); }
-    }
-
-
-    /* BAŞ DÖNDÜRÜCÜ 1 DAKİKALIK KUTLAMA SAHNESİ */
-    .celebrationOverlay.celebrationDizzyShow{
-      background:
-        radial-gradient(720px 520px at 50% 8%, rgba(255,45,85,.70), transparent 64%),
-        radial-gradient(560px 440px at 16% 62%, rgba(255,184,77,.46), transparent 72%),
-        radial-gradient(620px 500px at 86% 68%, rgba(181,23,255,.38), transparent 72%),
-        radial-gradient(900px 760px at 50% 112%, rgba(255,45,85,.34), transparent 70%),
-        linear-gradient(180deg, rgba(18,3,28,.92), rgba(5,6,10,.86));
-      animation:celebrationDizzyScene 1.6s ease-in-out infinite;
-    }
-
-    .celebrationOverlay.celebrationDizzyShow::before,
-    .celebrationOverlay.celebrationDizzyShow::after{
-      content:"";
-      position:absolute;
-      inset:-18%;
-      z-index:0;
-      pointer-events:none;
-      border-radius:50%;
-      background:
-        conic-gradient(from 0deg,
-          transparent 0deg,
-          rgba(255,45,85,.18) 42deg,
-          transparent 76deg,
-          rgba(255,211,102,.18) 138deg,
-          transparent 176deg,
-          rgba(181,23,255,.14) 232deg,
-          transparent 300deg,
-          rgba(255,255,255,.12) 340deg,
-          transparent 360deg);
-      filter:blur(10px) saturate(1.25);
-      mix-blend-mode:screen;
-      animation:celebrationVortexBg 9s linear infinite;
-      opacity:.86;
-    }
-
-    .celebrationOverlay.celebrationDizzyShow::after{
-      inset:-30%;
-      animation-duration:13s;
-      animation-direction:reverse;
-      opacity:.54;
-      filter:blur(18px) saturate(1.5);
-    }
-
-    .celebrationOverlay.celebrationDizzyShow .celebrationCard{
-      animation:celebrationDizzyCard 4.8s ease-in-out infinite;
-      background:
-        radial-gradient(260px 180px at 50% 10%, rgba(255,255,255,.20), transparent 72%),
-        linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08)),
-        rgba(16,10,28,.70);
-      box-shadow:
-        0 38px 120px rgba(0,0,0,.70),
-        0 0 62px rgba(255,45,85,.34),
-        0 0 94px rgba(255,204,102,.22),
-        0 0 120px rgba(181,23,255,.14),
-        inset 0 1px 0 rgba(255,255,255,.28);
-    }
-
-    .celebrationOverlay.celebrationDizzyShow .celebrationHalo{
-      width:250px;
-      height:250px;
-      background:radial-gradient(circle, rgba(255,255,255,.34), rgba(255,45,85,.38) 38%, rgba(255,205,96,.12) 62%, transparent 74%);
-      animation:celebrationHaloExplode 1.05s ease-in-out infinite;
-    }
-
-    .celebrationFlash{
-      animation:celebrationFlashPulse .22s ease-out 1, celebrationDizzyScene 1.6s ease-in-out infinite;
-    }
-
-    .heartFireworkMega .heartFireworkCore{
-      width:32px;
-      height:32px;
-      background:radial-gradient(circle, #fff 0 16%, #FFF1A8 24%, #FF2D55 54%, rgba(181,23,255,.34) 72%, transparent 78%);
-      box-shadow:
-        0 0 26px rgba(255,255,255,1),
-        0 0 68px rgba(255,45,85,.96),
-        0 0 112px rgba(255,195,84,.82),
-        0 0 148px rgba(181,23,255,.40);
-      animation:heartFireworkCore 1.75s ease-out forwards;
-    }
-
-    .heartFireworkMega .heartSpark{
-      animation-duration:2.8s;
-      box-shadow:
-        0 0 12px rgba(255,255,255,.95),
-        0 0 24px var(--spark),
-        0 0 44px rgba(255,45,85,.58),
-        0 0 72px rgba(255,201,91,.30);
-    }
-
-    .celebrationRingSparkBig{
-      filter:blur(.05px) saturate(1.35);
-      box-shadow:
-        0 0 18px rgba(255,255,255,1),
-        0 0 38px var(--spark),
-        0 0 76px rgba(255,45,85,.62);
-    }
-
-    .celebrationShockwave{
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:34px;
-      height:34px;
-      border-radius:50%;
-      border:2px solid rgba(255,232,166,.95);
-      box-shadow:
-        0 0 18px rgba(255,255,255,.92),
-        0 0 48px rgba(255,45,85,.74),
-        inset 0 0 18px rgba(255,255,255,.42);
-      opacity:0;
-      transform:translate(-50%, -50%) scale(.25);
-      animation:celebrationShockwave 1.55s ease-out forwards;
-    }
-
-    .celebrationRocket{
-      position:absolute;
-      left:var(--rsx);
-      top:calc(var(--celebration-lock-height) + 28px);
-      z-index:2;
-      width:12px;
-      height:12px;
-      border-radius:50%;
-      background:radial-gradient(circle, #fff 0 18%, #FFE39B 34%, #FF2D55 70%, transparent 100%);
-      box-shadow:
-        0 0 18px rgba(255,255,255,1),
-        0 0 38px rgba(255,45,85,.90),
-        0 0 72px rgba(255,205,90,.62);
-      transform:translate3d(0,0,0) scale(var(--rocket-scale));
-      animation:celebrationRocketFly .82s cubic-bezier(.16,.9,.18,1) forwards;
-    }
-
-    .celebrationRocket::after{
-      content:"";
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:5px;
-      height:104px;
-      border-radius:999px;
-      transform:translate(-50%, -6px);
-      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,45,85,.58), transparent);
-      filter:blur(1px);
-      opacity:.92;
-    }
-
-    .celebrationLightTrail{
-      position:absolute;
-      left:-18%;
-      top:var(--trail-top);
-      z-index:1;
-      width:138%;
-      height:3px;
-      border-radius:999px;
-      transform:rotate(var(--trail-rot));
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.88), rgba(255,45,85,.90), rgba(255,210,96,.76), transparent);
-      box-shadow:
-        0 0 16px rgba(255,255,255,.76),
-        0 0 42px rgba(255,45,85,.60),
-        0 0 74px rgba(255,204,102,.32);
-      opacity:0;
-      animation:celebrationLightTrail 2.45s ease-out forwards;
-      animation-delay:var(--trail-delay);
-    }
-
-    .celebrationVortexRing{
-      position:absolute;
-      left:50%;
-      top:50%;
-      z-index:0;
-      width:var(--ring-size);
-      height:var(--ring-size);
-      border-radius:50%;
-      border:2px solid rgba(255,231,166,.20);
-      background:
-        conic-gradient(from 0deg, transparent, rgba(255,45,85,.26), transparent, rgba(255,224,150,.22), transparent, rgba(181,23,255,.18), transparent);
-      box-shadow:
-        0 0 34px rgba(255,45,85,.24),
-        inset 0 0 30px rgba(255,255,255,.08);
-      transform:translate(-50%, -50%) scale(.30) rotate(0deg);
-      opacity:0;
-      animation:celebrationVortexRing 4.8s ease-out forwards;
-      animation-delay:var(--ring-delay);
-      mix-blend-mode:screen;
-    }
-
-    @keyframes celebrationDizzyScene{
-      0%,100%{ filter:saturate(1.18) brightness(1.02) hue-rotate(0deg); }
-      35%{ filter:saturate(1.55) brightness(1.14) hue-rotate(-8deg); }
-      70%{ filter:saturate(1.34) brightness(1.08) hue-rotate(8deg); }
-    }
-
-    @keyframes celebrationVortexBg{
-      0%{ transform:rotate(0deg) scale(1); }
-      50%{ transform:rotate(180deg) scale(1.08); }
-      100%{ transform:rotate(360deg) scale(1); }
-    }
-
-    @keyframes celebrationDizzyCard{
-      0%,100%{ transform:translateY(0) scale(1) rotate(0deg); }
-      25%{ transform:translateY(-3px) scale(1.018) rotate(-.55deg); }
-      50%{ transform:translateY(-6px) scale(1.032) rotate(.65deg); }
-      75%{ transform:translateY(-2px) scale(1.012) rotate(-.35deg); }
-    }
-
-    @keyframes celebrationHaloExplode{
-      0%,100%{ transform:translateX(-50%) scale(.88); opacity:.70; filter:blur(5px); }
-      50%{ transform:translateX(-50%) scale(1.22); opacity:1; filter:blur(2px); }
-    }
-
-    @keyframes celebrationFlashPulse{
-      0%{ filter:saturate(1.35) brightness(1.25); }
-      100%{ filter:saturate(1.18) brightness(1.02); }
-    }
-
-    @keyframes celebrationShockwave{
-      0%{ opacity:0; transform:translate(-50%, -50%) scale(.16); }
-      12%{ opacity:1; }
-      100%{ opacity:0; transform:translate(-50%, -50%) scale(11); }
-    }
-
-    @keyframes celebrationRocketFly{
-      0%{ opacity:0; transform:translate3d(0,0,0) scale(calc(var(--rocket-scale) * .62)); }
-      12%{ opacity:1; }
-      84%{ opacity:1; }
-      100%{ opacity:0; transform:translate3d(var(--rdx), var(--rdy), 0) scale(var(--rocket-scale)); }
-    }
-
-    @keyframes celebrationLightTrail{
-      0%{ opacity:0; clip-path:inset(0 100% 0 0); }
-      16%{ opacity:1; }
-      72%{ opacity:.9; }
-      100%{ opacity:0; clip-path:inset(0 0 0 100%); }
-    }
-
-    @keyframes celebrationVortexRing{
-      0%{ opacity:0; transform:translate(-50%, -50%) scale(.28) rotate(0deg); }
-      12%{ opacity:.82; }
-      72%{ opacity:.72; }
-      100%{ opacity:0; transform:translate(-50%, -50%) scale(1.28) rotate(var(--ring-rot)); }
+      0%,100%{ background-position:0% 50%; box-shadow:0 15px 42px rgba(255,45,85,.38), 0 0 28px rgba(255,209,102,.22), inset 0 1px 0 rgba(255,255,255,.28); }
+      50%{ background-position:100% 50%; box-shadow:0 18px 54px rgba(255,45,135,.50), 0 0 42px rgba(255,209,102,.32), inset 0 1px 0 rgba(255,255,255,.34); }
     }
 
     @media (max-width:420px){
-      .celebrationOverlay{
-        padding:calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
+      .celebrationCard{
+        left:12px;
+        right:12px;
+        bottom:calc(12px + env(safe-area-inset-bottom));
+        padding:12px 12px 11px;
+        border-radius:23px;
       }
-      .celebrationCard{ padding:26px 18px 18px; border-radius:30px; }
-      .celebrationIcon{ width:86px; height:86px; border-radius:30px; font-size:44px; }
-      .celebrationText{ font-size:14px; }
+      .celebrationText{ font-size:12.8px; }
+      .celebrationMeta{ font-size:11px; }
+      .celebrationClose{ min-height:46px; }
     }
 
     @media (prefers-reduced-motion: reduce){
-      .celebrationOverlay,
-      .celebrationCard,
-      .celebrationHalo,
-      .celebrationIcon,
-      .celebrationParticle,
-      .heartFireworkCore,
-      .heartSpark,
-      .heartSparkBig{
-      width:calc(var(--spark-size) * 1.35);
-      height:calc(var(--spark-size) * 1.35);
-      box-shadow:
-        0 0 14px rgba(255,255,255,.96),
-        0 0 28px var(--spark),
-        0 0 48px rgba(255,45,85,.50);
-    }
-
-    .celebrationRingSpark{
-      opacity:.95;
-      filter:blur(.15px);
-    }
-
-    .celebrationConfetti{
-      position:absolute;
-      left:var(--cx);
-      top:-34px;
-      z-index:2;
-      font-size:var(--csize);
-      color:#FFE7A6;
-      opacity:0;
-      pointer-events:none;
-      user-select:none;
-      text-shadow:
-        0 0 8px rgba(255,255,255,.86),
-        0 0 18px rgba(255,202,98,.78),
-        0 0 34px rgba(255,45,85,.40);
-      transform:translate3d(0,-30px,0) rotate(0deg) scale(.78);
-      animation:celebrationConfettiFall var(--cdur) linear forwards;
-      animation-delay:var(--cdelay);
-    }
-
-    .celebrationMusicNote{
+      .celebrationArtwork,
+      .celebrationOverlay::before,
+      .celebrationLightLayer::before,
+      .celebrationLightLayer::after,
+      .celebrationMusicNote,
+      .celebrationClose.celebrating{
         animation:none !important;
-        transition:none !important;
       }
     }
-
 
     /* APP UPDATE OVERLAY */
     .updateOverlay{
