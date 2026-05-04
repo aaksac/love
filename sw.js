@@ -8,7 +8,8 @@ const CORE = [
   "./icon-192.png",
   "./icon-512.png",
   "./sw.js",
-  "./music/song.mp3"
+  "./music/song.mp3",
+  "./assets/celebration-love-show.png"
 ];
 
 function isVersionRequest(request){
