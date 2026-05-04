@@ -4,6 +4,16 @@ function fmtDate(d){
   return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
 }
 
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>'"]/g, ch => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    "'":"&#039;",
+    '"':"&quot;"
+  }[ch]));
+}
+
 // Yıl-ay-gün-saat-dk-sn “takvimsel” fark
 function diffCalendar(start, end){
   let y = end.getFullYear() - start.getFullYear();
@@ -57,7 +67,7 @@ function render(events){
 
     item.innerHTML = `
       <div class="itemTop">
-        <div class="itemName">${ev.title}</div>
+        <div class="itemName">${escapeHTML(ev.title)}</div>
         <div class="itemDate">${fmtDate(d)}</div>
       </div>
 
@@ -75,10 +85,10 @@ function render(events){
         </svg>
       </div>
 
-      ${ev.message ? `<div class="pill">${ev.message}</div>` : ""}
+      ${ev.message ? `<div class="pill">${escapeHTML(ev.message)}</div>` : ""}
 
-      <div id="since-${ev.id}" class="big">—</div>
-      <div id="next-${ev.id}" class="pill">Bir sonraki yıldönümüne: —</div>
+      <div id="since-${escapeHTML(ev.id)}" class="big">—</div>
+      <div id="next-${escapeHTML(ev.id)}" class="pill">Bir sonraki yıldönümüne: —</div>
     `;
 
     list.appendChild(item);
@@ -106,6 +116,163 @@ function tick(events){
         `Bir sonraki yıldönümüne: ${left.y} yıl ${left.m} ay ${left.d} gün ${left.h} sa ${left.min} dk ${left.s} sn`;
     }
   }
+}
+
+function isSameMonthDay(dateA, dateB){
+  return dateA.getMonth() === dateB.getMonth() && dateA.getDate() === dateB.getDate();
+}
+
+function getCelebrationIcon(ev){
+  const key = `${ev.id || ""} ${ev.title || ""}`.toLocaleLowerCase("tr-TR");
+  if (ev.celebrationIcon) return ev.celebrationIcon;
+  if (key.includes("doğum") || key.includes("dogum")) return "🎂";
+  if (key.includes("teklif") || key.includes("nişan") || key.includes("nisan")) return "💍";
+  if (key.includes("nikâh") || key.includes("nikah")) return "🤍";
+  if (key.includes("düğün") || key.includes("dugun")) return "✨";
+  if (key.includes("tanış") || key.includes("tanis")) return "💞";
+  return "❤️";
+}
+
+function getCelebrationTitle(ev, years){
+  if (ev.celebrationTitle) return ev.celebrationTitle;
+
+  const key = `${ev.id || ""} ${ev.title || ""}`.toLocaleLowerCase("tr-TR");
+  if (key.includes("doğum") || key.includes("dogum")){
+    return `${ev.title} kutlu olsun`;
+  }
+
+  if (years > 0){
+    return `${years}. ${ev.title} yıl dönümümüz kutlu olsun`;
+  }
+
+  return `${ev.title} günümüz kutlu olsun`;
+}
+
+function getCelebrationMessage(ev, years){
+  if (ev.celebrationMessage) return ev.celebrationMessage;
+
+  const key = `${ev.id || ""} ${ev.title || ""}`.toLocaleLowerCase("tr-TR");
+  if (key.includes("doğum") || key.includes("dogum")){
+    return "Bugün sevgiyle, neşeyle ve en güzel anılarla hatırlanacak özel bir gün.";
+  }
+
+  if (years > 0){
+    return `Bugün bu güzel hatıranın ${years}. yılı. İyi ki aynı hikâyenin içindeyiz.`;
+  }
+
+  return "Bugün bizim için özel bir gün. İyi ki var, iyi ki bizim hikâyemizin bir parçası.";
+}
+
+function createParticleLayer(parent){
+  const icons = ["♡", "✦", "✨", "♥", "✧", "❦"];
+  const positions = [
+    [8,18,22,3.1,-.3], [18,74,18,3.7,-1.1], [82,16,20,3.4,-.7],
+    [90,70,19,4.0,-1.6], [26,12,14,3.5,-2.0], [72,84,15,3.9,-.9],
+    [10,52,14,4.4,-1.4], [88,42,16,3.8,-.5], [42,8,13,4.2,-1.8],
+    [58,90,18,4.1,-1.2], [32,82,13,3.6,-.6], [68,10,16,4.0,-1.5]
+  ];
+
+  positions.forEach((p, i) => {
+    const span = document.createElement("span");
+    span.className = "celebrationParticle";
+    span.textContent = icons[i % icons.length];
+    span.style.setProperty("--x", `${p[0]}%`);
+    span.style.setProperty("--y", `${p[1]}%`);
+    span.style.setProperty("--s", `${p[2]}px`);
+    span.style.setProperty("--d", `${p[3]}s`);
+    span.style.setProperty("--delay", `${p[4]}s`);
+    parent.appendChild(span);
+  });
+}
+
+function showCelebrationIfToday(events){
+  const now = new Date();
+  const todaysEvents = events
+    .map(ev => ({ ev, base: new Date(ev.date) }))
+    .filter(item => !Number.isNaN(item.base.getTime()) && isSameMonthDay(item.base, now));
+
+  if (!todaysEvents.length) return;
+
+  const primary = todaysEvents[0];
+  const years = Math.max(0, now.getFullYear() - primary.base.getFullYear());
+  const overlay = document.createElement("div");
+  overlay.className = "celebrationOverlay";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "Özel gün kutlaması");
+
+  createParticleLayer(overlay);
+
+  const card = document.createElement("div");
+  card.className = "celebrationCard";
+  card.addEventListener("click", e => e.stopPropagation());
+
+  const halo = document.createElement("div");
+  halo.className = "celebrationHalo";
+  halo.setAttribute("aria-hidden", "true");
+
+  const icon = document.createElement("div");
+  icon.className = "celebrationIcon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = getCelebrationIcon(primary.ev);
+
+  const eyebrow = document.createElement("div");
+  eyebrow.className = "celebrationEyebrow";
+  eyebrow.textContent = todaysEvents.length > 1 ? "Bugünün özel anları" : "Bugün özel bir gün";
+
+  const title = document.createElement("div");
+  title.className = "celebrationTitle";
+  title.textContent = getCelebrationTitle(primary.ev, years);
+
+  const text = document.createElement("div");
+  text.className = "celebrationText";
+  text.textContent = getCelebrationMessage(primary.ev, years);
+
+  const meta = document.createElement("div");
+  meta.className = "celebrationMeta";
+  meta.textContent = `${fmtDate(primary.base)} tarihinden bugüne ${years} yıl geçti.`;
+
+  card.append(halo, icon, eyebrow, title, text, meta);
+
+  if (todaysEvents.length > 1){
+    const eventList = document.createElement("div");
+    eventList.className = "celebrationEvents";
+    todaysEvents.forEach(({ev, base}) => {
+      const mini = document.createElement("div");
+      mini.className = "celebrationEventMini";
+      mini.textContent = `${getCelebrationIcon(ev)} ${ev.title} · ${now.getFullYear() - base.getFullYear()}. yıl`;
+      eventList.appendChild(mini);
+    });
+    card.appendChild(eventList);
+  }
+
+  const close = document.createElement("button");
+  close.type = "button";
+  close.className = "celebrationClose";
+  close.textContent = "Bugünü Kutla";
+
+  function removeOverlay(){
+    overlay.classList.remove("active");
+    window.setTimeout(() => overlay.remove(), 260);
+  }
+
+  close.addEventListener("click", removeOverlay);
+  overlay.addEventListener("click", removeOverlay);
+  window.addEventListener("keydown", function onKey(e){
+    if (e.key === "Escape"){
+      window.removeEventListener("keydown", onKey);
+      removeOverlay();
+    }
+  });
+
+  card.appendChild(close);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  requestAnimationFrame(() => {
+    overlay.classList.add("active");
+    close.focus({ preventScroll:true });
+  });
 }
 
 /* MUSIC (iOS: user gesture required) */
@@ -157,6 +324,7 @@ function setupMusic(){
   render(events);
   tick(events);
   setupMusic();
+  showCelebrationIfToday(events);
 
   setInterval(() => tick(events), 1000);
 
