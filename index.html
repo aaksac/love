@@ -19,6 +19,7 @@
     :root{
       --bg0:#05060A;
       --bg1:#0A0B12;
+      --app-viewport-height:100dvh;
 
       --card:rgba(255,255,255,.055);
       --stroke:rgba(255,255,255,.10);
@@ -30,9 +31,22 @@
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{
+      width:100%;
+      min-height:100%;
+      background:#05060A;
+      overflow-x:hidden;
+    }
+
+    html.celebration-lock,
+    body.celebration-lock{
+      overscroll-behavior:none;
+      touch-action:none;
+    }
 
     body{
+      min-height:100vh;
+      min-height:var(--app-viewport-height);
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui;
       color:var(--text);
@@ -42,7 +56,8 @@
     }
 
     .safe{
-      min-height:100%;
+      min-height:100vh;
+      min-height:var(--app-viewport-height);
       padding:calc(20px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
       display:flex;
       justify-content:center;
@@ -202,13 +217,22 @@
     /* ANNIVERSARY CELEBRATION OVERLAY */
     .celebrationOverlay{
       position:fixed;
-      inset:0;
+      top:0;
+      left:0;
+      right:0;
+      bottom:auto;
+      width:100vw;
+      height:100vh;
+      height:var(--app-viewport-height);
+      min-height:100svh;
       z-index:9999;
       padding:calc(22px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom));
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:auto;
       background:
         radial-gradient(520px 420px at 50% 18%, rgba(255,45,85,.28), transparent 64%),
         radial-gradient(360px 320px at 18% 78%, rgba(255,184,77,.18), transparent 70%),
@@ -418,7 +442,10 @@
     }
 
     @media (max-width:420px){
-      .celebrationCard{ padding:28px 18px 18px; border-radius:30px; }
+      .celebrationOverlay{
+        padding:calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
+      }
+      .celebrationCard{ padding:26px 18px 18px; border-radius:30px; }
       .celebrationIcon{ width:86px; height:86px; border-radius:30px; font-size:44px; }
       .celebrationText{ font-size:14px; }
     }
@@ -438,7 +465,14 @@
     /* APP UPDATE OVERLAY */
     .updateOverlay{
       position:fixed;
-      inset:0;
+      top:0;
+      left:0;
+      right:0;
+      bottom:auto;
+      width:100vw;
+      height:100vh;
+      height:var(--app-viewport-height);
+      min-height:100svh;
       z-index:10000;
       display:flex;
       align-items:center;
