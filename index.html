@@ -391,11 +391,12 @@
       position:absolute;
       left:50%;
       right:auto;
-      bottom:calc(var(--celebration-viewport-bleed) + 52px + env(safe-area-inset-bottom));
+      top:calc(74px + env(safe-area-inset-top));
+      bottom:auto;
       z-index:4;
       width:min(calc(100vw - 28px - env(safe-area-inset-left) - env(safe-area-inset-right)), 520px);
       max-width:520px;
-      max-height:calc(var(--celebration-lock-height) - 78px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      max-height:calc(var(--celebration-lock-height) - 104px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
       margin:0;
       padding:14px 14px 12px;
       overflow:auto;
@@ -594,8 +595,9 @@
 
     @media (max-height: 680px){
       .celebrationCard{
-        bottom:calc(var(--celebration-viewport-bleed) + 34px + env(safe-area-inset-bottom));
-        max-height:calc(var(--celebration-lock-height) - 56px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        top:calc(52px + env(safe-area-inset-top));
+        bottom:auto;
+        max-height:calc(var(--celebration-lock-height) - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
         padding:11px 12px 10px;
         border-radius:22px;
       }
