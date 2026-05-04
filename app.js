@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.14";
+const APP_VERSION = "1.0.15";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -38,8 +38,10 @@ function syncAppViewportHeight(){
 
 function lockCelebrationViewportHeight(){
   const height = getStableViewportHeight();
+  const bottomCover = Math.max(150, Math.round(height * 0.18));
   document.documentElement.style.setProperty("--celebration-lock-height", `${height}px`);
   document.documentElement.style.setProperty("--app-viewport-height", `${height}px`);
+  document.documentElement.style.setProperty("--celebration-bottom-cover", `${bottomCover}px`);
 }
 
 function startViewportSync(){
