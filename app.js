@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.6";
+const APP_VERSION = "1.0.7";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -19,6 +19,7 @@ function escapeHTML(value){
 
 let celebrationScrollY = 0;
 let celebrationViewportCleanup = null;
+const CELEBRATION_SHOW_DURATION_MS = 60000;
 
 function getStableViewportHeight(){
   const values = [
@@ -454,8 +455,16 @@ function createCelebrationFireworkLayer(parent){
   return layer;
 }
 
-function createHeartFirework(layer, xPercent, yPercent, scale = 1){
-  if (!layer) return;
+function randomBetween(min, max){
+  return min + Math.random() * (max - min);
+}
+
+function getCelebrationLayer(overlay){
+  return overlay?.querySelector?.(".celebrationFireworkLayer") || null;
+}
+
+function createHeartFirework(layer, xPercent, yPercent, scale = 1, intensity = 1){
+  if (!layer || !layer.isConnected) return;
 
   const firework = document.createElement("div");
   firework.className = "heartFirework";
@@ -467,8 +476,9 @@ function createHeartFirework(layer, xPercent, yPercent, scale = 1){
   core.className = "heartFireworkCore";
   firework.appendChild(core);
 
-  const colors = ["#FFF6D8", "#FFD166", "#FF5C8A", "#FF2D55", "#FF9FB2"];
-  const total = 46;
+  const colors = ["#FFFDF0", "#FFE39B", "#FFD166", "#FF7AA2", "#FF2D55", "#FFB3C7"];
+  const total = Math.round(72 * intensity);
+  const spread = 6.4 * scale;
 
   for (let i = 0; i < total; i++){
     const t = (Math.PI * 2 * i) / total;
@@ -478,54 +488,205 @@ function createHeartFirework(layer, xPercent, yPercent, scale = 1){
     const hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
 
     const spark = document.createElement("span");
-    spark.className = "heartSpark";
-    spark.style.setProperty("--tx", `${hx * 4.8 * scale}px`);
-    spark.style.setProperty("--ty", `${hy * 4.8 * scale}px`);
-    spark.style.setProperty("--delay", `${(i % 7) * 0.012}s`);
+    spark.className = i % 4 === 0 ? "heartSpark heartSparkBig" : "heartSpark";
+    spark.style.setProperty("--tx", `${hx * spread}px`);
+    spark.style.setProperty("--ty", `${hy * spread}px`);
+    spark.style.setProperty("--delay", `${(i % 9) * 0.014}s`);
     spark.style.setProperty("--spark", colors[i % colors.length]);
-    spark.style.setProperty("--spark-size", `${Math.max(3.5, 6.5 * scale)}px`);
+    spark.style.setProperty("--spark-size", `${Math.max(4.5, 8.5 * scale)}px`);
+    firework.appendChild(spark);
+  }
+
+  // Kalbin çevresine ikinci bir altın halka eklenir; ekranı daha canlı gösterir.
+  const ringTotal = Math.round(26 * intensity);
+  for (let i = 0; i < ringTotal; i++){
+    const angle = (Math.PI * 2 * i) / ringTotal;
+    const radius = randomBetween(70, 122) * scale;
+
+    const spark = document.createElement("span");
+    spark.className = "heartSpark celebrationRingSpark";
+    spark.style.setProperty("--tx", `${Math.cos(angle) * radius}px`);
+    spark.style.setProperty("--ty", `${Math.sin(angle) * radius}px`);
+    spark.style.setProperty("--delay", `${(i % 6) * 0.02}s`);
+    spark.style.setProperty("--spark", colors[(i + 2) % colors.length]);
+    spark.style.setProperty("--spark-size", `${Math.max(3.5, 6.2 * scale)}px`);
     firework.appendChild(spark);
   }
 
   layer.appendChild(firework);
-  window.setTimeout(() => firework.remove(), 1900);
+  window.setTimeout(() => firework.remove(), 2800);
 }
 
-function createMusicNotes(parent){
-  const notes = ["♪", "♫", "♬", "♩", "𝄞"];
-  const positions = [
-    [12,72,-34,-96,0], [22,58,-18,-118,90], [78,62,24,-122,160],
-    [88,74,34,-106,240], [15,38,-30,-86,320], [84,38,30,-88,400]
-  ];
+function createCelebrationConfetti(overlay, amount = 18){
+  const layer = getCelebrationLayer(overlay);
+  if (!layer) return;
 
-  positions.forEach((p, i) => {
+  const pieces = ["♥", "♡", "❥", "✦", "✨", "✧", "❣"];
+  for (let i = 0; i < amount; i++){
+    const confetti = document.createElement("span");
+    confetti.className = "celebrationConfetti";
+    confetti.textContent = pieces[i % pieces.length];
+    confetti.style.setProperty("--cx", `${randomBetween(3, 97)}%`);
+    confetti.style.setProperty("--csize", `${randomBetween(14, 28)}px`);
+    confetti.style.setProperty("--cdx", `${randomBetween(-58, 58)}px`);
+    confetti.style.setProperty("--cdur", `${randomBetween(3.8, 6.8)}s`);
+    confetti.style.setProperty("--crot", `${randomBetween(-220, 220)}deg`);
+    confetti.style.setProperty("--cdelay", `${randomBetween(0, .7)}s`);
+    layer.appendChild(confetti);
+
+    window.setTimeout(() => confetti.remove(), 7800);
+  }
+}
+
+function createMusicNotes(parent, options = {}){
+  const notes = ["♪", "♫", "♬", "♩", "𝄞"];
+  const count = options.count || 7;
+
+  for (let i = 0; i < count; i++){
     const note = document.createElement("span");
     note.className = "celebrationMusicNote";
     note.textContent = notes[i % notes.length];
-    note.style.setProperty("--nx", `${p[0]}%`);
-    note.style.setProperty("--ny", `${p[1]}%`);
-    note.style.setProperty("--ndx", `${p[2]}px`);
-    note.style.setProperty("--ndy", `${p[3]}px`);
-    note.style.setProperty("--note-delay", `${p[4]}ms`);
+    note.style.setProperty("--nx", `${randomBetween(9, 91)}%`);
+    note.style.setProperty("--ny", `${randomBetween(55, 86)}%`);
+    note.style.setProperty("--ndx", `${randomBetween(-58, 58)}px`);
+    note.style.setProperty("--ndy", `${randomBetween(-150, -90)}px`);
+    note.style.setProperty("--note-delay", `${Math.round(randomBetween(0, 620))}ms`);
     parent.appendChild(note);
-    window.setTimeout(() => note.remove(), 2300 + p[4]);
-  });
+    window.setTimeout(() => note.remove(), 3400);
+  }
 }
 
-function launchHeartFireworkShow(overlay){
-  const layer = overlay.querySelector(".celebrationFireworkLayer");
-  const bursts = [
-    [50, 17, 1.18, 0],
-    [22, 30, .82, 260],
-    [78, 31, .84, 520],
-    [50, 42, .62, 850],
-    [14, 63, .54, 1100],
-    [86, 64, .54, 1320]
+function launchHeartFireworkShow(overlay, mode = "burst"){
+  const layer = getCelebrationLayer(overlay);
+  if (!layer) return;
+
+  const grand = mode === "grand" || mode === "finale";
+  const bursts = grand ? [
+    [50, 14, 1.46, 0, 1.15],
+    [20, 24, 1.02, 180, 1],
+    [80, 24, 1.02, 340, 1],
+    [36, 38, .86, 520, .92],
+    [64, 38, .86, 680, .92],
+    [50, 47, .76, 880, .86],
+    [15, 62, .72, 1080, .82],
+    [85, 62, .72, 1260, .82],
+    [29, 72, .58, 1480, .76],
+    [71, 72, .58, 1660, .76]
+  ] : [
+    [50, 17, 1.24, 0, 1],
+    [22, 30, .92, 220, .9],
+    [78, 31, .92, 420, .9],
+    [50, 42, .72, 640, .84],
+    [14, 63, .62, 840, .76],
+    [86, 64, .62, 1040, .76]
   ];
 
-  bursts.forEach(([x, y, scale, delay]) => {
-    window.setTimeout(() => createHeartFirework(layer, x, y, scale), delay);
+  bursts.forEach(([x, y, scale, delay, intensity]) => {
+    window.setTimeout(() => createHeartFirework(layer, x, y, scale, intensity), delay);
   });
+
+  createCelebrationConfetti(overlay, grand ? 28 : 16);
+}
+
+function getCelebrationState(overlay){
+  if (!overlay.__celebrationState){
+    overlay.__celebrationState = {
+      running:false,
+      intervals:[],
+      timeouts:[],
+      endsAt:0
+    };
+  }
+  return overlay.__celebrationState;
+}
+
+function clearCelebrationShow(overlay){
+  const state = overlay.__celebrationState;
+  if (!state) return;
+
+  state.intervals.forEach(id => window.clearInterval(id));
+  state.timeouts.forEach(id => window.clearTimeout(id));
+  state.intervals = [];
+  state.timeouts = [];
+  state.running = false;
+  state.endsAt = 0;
+}
+
+function finishCelebrationShow(overlay, actionButton){
+  const state = getCelebrationState(overlay);
+  if (!state.running) return;
+
+  state.intervals.forEach(id => window.clearInterval(id));
+  state.timeouts.forEach(id => window.clearTimeout(id));
+  state.intervals = [];
+  state.timeouts = [];
+  state.running = false;
+  state.endsAt = 0;
+
+  overlay.classList.remove("celebrationMinuteShow");
+  actionButton.textContent = "Tekrar Kutla ❤️";
+
+  launchHeartFireworkShow(overlay, "finale");
+  createMusicNotes(overlay, { count:12 });
+}
+
+function startMinuteCelebrationShow(overlay, actionButton){
+  const state = getCelebrationState(overlay);
+
+  if (state.running){
+    // Kullanıcı tekrar dokunursa süreyi sıfırlamadan ekstra canlılık ver.
+    launchHeartFireworkShow(overlay, "grand");
+    createMusicNotes(overlay, { count:10 });
+    createCelebrationConfetti(overlay, 24);
+    return;
+  }
+
+  state.running = true;
+  state.endsAt = Date.now() + CELEBRATION_SHOW_DURATION_MS;
+  overlay.classList.add("celebrating", "celebrationMinuteShow");
+  actionButton.classList.add("celebrating");
+
+  const updateCountdown = () => {
+    const remaining = Math.max(0, Math.ceil((state.endsAt - Date.now()) / 1000));
+    actionButton.textContent = `Kutlama sürüyor ❤️ ${remaining} sn`;
+  };
+
+  updateCountdown();
+  launchHeartFireworkShow(overlay, "grand");
+  createMusicNotes(overlay, { count:12 });
+  createCelebrationConfetti(overlay, 34);
+
+  state.intervals.push(window.setInterval(() => {
+    const layer = getCelebrationLayer(overlay);
+    if (!layer) return;
+
+    createHeartFirework(
+      layer,
+      randomBetween(12, 88),
+      randomBetween(12, 68),
+      randomBetween(.62, 1.42),
+      randomBetween(.78, 1.08)
+    );
+  }, 520));
+
+  state.intervals.push(window.setInterval(() => {
+    createCelebrationConfetti(overlay, 16);
+  }, 1150));
+
+  state.intervals.push(window.setInterval(() => {
+    createMusicNotes(overlay, { count:6 });
+  }, 1850));
+
+  state.intervals.push(window.setInterval(() => {
+    updateCountdown();
+    if (Date.now() >= state.endsAt){
+      finishCelebrationShow(overlay, actionButton);
+    }
+  }, 1000));
+
+  state.timeouts.push(window.setTimeout(() => {
+    finishCelebrationShow(overlay, actionButton);
+  }, CELEBRATION_SHOW_DURATION_MS));
 }
 
 async function startCelebrationMusic(){
@@ -625,6 +786,7 @@ function showCelebrationIfToday(events){
   function removeOverlay(){
     if (celebrationClosing) return;
     celebrationClosing = true;
+    clearCelebrationShow(overlay);
     overlay.remove();
     unlockPageForCelebration();
   }
@@ -645,25 +807,17 @@ function showCelebrationIfToday(events){
     stopCelebrationTapSideEffects(e);
     lockCelebrationViewportHeight();
 
-    overlay.classList.add("celebrating");
-    createMusicNotes(overlay);
-    launchHeartFireworkShow(overlay);
-
     if (!celebrationStarted){
       celebrationStarted = true;
-      close.classList.add("celebrating");
-      close.textContent = "Kutlama Başladı ❤️";
 
       try{
         await startCelebrationMusic();
       } catch (err){
         console.log("Kutlama müziği başlatılamadı:", err);
       }
-
-      window.setTimeout(() => {
-        close.textContent = "Tekrar Kutla ❤️";
-      }, 1800);
     }
+
+    startMinuteCelebrationShow(overlay, close);
   });
 
   overlay.addEventListener("click", (e) => {
