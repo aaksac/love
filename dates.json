@@ -4,16 +4,66 @@
       "id": "tanisma",
       "title": "Tanışma",
       "date": "2021-09-13T01:18:22",
-      "message": "Sana hala ilk günkü gibi aşığım bitanem benim. ❤️"
+      "message": "Sana hala ilk günkü gibi aşığım bitanem benim. ❤️",
+      "celebrationIcon": "💞",
+      "celebrationTitle": "Tanışma yıl dönümümüz kutlu olsun",
+      "celebrationMessage": "Yollarımızın kesiştiği o güzel gün, hikâyemizin en kıymetli başlangıcı olarak hep bizimle."
     },
-    { "id": "evlilik_teklifi", "title": "Evlilik Teklifi", "date": "2022-01-01T00:00:00" },
-    { "id": "nisan", "title": "Nişan", "date": "2022-05-04T00:00:00" },
-    { "id": "nikah", "title": "Nikâh", "date": "2022-08-10T00:00:00" },
-    { "id": "dugun", "title": "Düğün", "date": "2022-08-21T00:00:00" },
-
-    { "id": "akif_dogum", "title": "Akif’in Doğumu", "date": "2023-10-10T00:00:00" },
-    { "id": "baba_dogum", "title": "Baba Doğum Günü", "date": "1994-10-27T00:00:00" },
-    { "id": "anne_dogum", "title": "Anne Doğum Günü", "date": "1996-08-27T00:00:00" }
+    {
+      "id": "evlilik_teklifi",
+      "title": "Evlilik Teklifi",
+      "date": "2022-01-01T00:00:00",
+      "celebrationIcon": "💍",
+      "celebrationTitle": "Evlilik teklifi yıl dönümümüz kutlu olsun",
+      "celebrationMessage": "Bir ömürlük “evet”e açılan o özel an bugün yeniden kalbimizde."
+    },
+    {
+      "id": "nisan",
+      "title": "Nişan",
+      "date": "2022-05-04T00:00:00",
+      "celebrationIcon": "💍",
+      "celebrationTitle": "Nişan yıl dönümümüz kutlu olsun",
+      "celebrationMessage": "Bugün, ailelerimizin ve kalplerimizin aynı güzel hikâyede birleştiği özel gün."
+    },
+    {
+      "id": "nikah",
+      "title": "Nikâh",
+      "date": "2022-08-10T00:00:00",
+      "celebrationIcon": "🤍",
+      "celebrationTitle": "Nikâh yıl dönümümüz kutlu olsun",
+      "celebrationMessage": "Aynı hayata imza attığımız bu anlamlı gün, sevgimizin en zarif hatıralarından biri."
+    },
+    {
+      "id": "dugun",
+      "title": "Düğün",
+      "date": "2022-08-21T00:00:00",
+      "celebrationIcon": "✨",
+      "celebrationTitle": "Düğün yıl dönümümüz kutlu olsun",
+      "celebrationMessage": "Sevincin, duanın ve mutluluğun birleştiği o güzel gün bugün yeniden bizimle."
+    },
+    {
+      "id": "akif_dogum",
+      "title": "Akif’in Doğumu",
+      "date": "2023-10-10T00:00:00",
+      "celebrationIcon": "🧸",
+      "celebrationTitle": "Akif’in doğum günü kutlu olsun",
+      "celebrationMessage": "Hayatımıza neşe, bereket ve tarifsiz bir sevgi getiren en güzel günlerden biri."
+    },
+    {
+      "id": "baba_dogum",
+      "title": "Baba Doğum Günü",
+      "date": "1994-10-27T00:00:00",
+      "celebrationIcon": "🎂",
+      "celebrationTitle": "Baba doğum günü kutlu olsun",
+      "celebrationMessage": "Bugün sevgiyle, şükürle ve güzel hatıralarla anılacak özel bir gün."
+    },
+    {
+      "id": "anne_dogum",
+      "title": "Anne Doğum Günü",
+      "date": "1996-08-27T00:00:00",
+      "celebrationIcon": "🌸",
+      "celebrationTitle": "Anne doğum günü kutlu olsun",
+      "celebrationMessage": "Bugün iyiliğin, zarafetin ve sevginin en güzel hâlini kutlama günü."
+    }
   ]
-
 }
