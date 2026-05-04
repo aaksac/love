@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.4";
+const APP_VERSION = "1.0.6";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -20,9 +20,25 @@ function escapeHTML(value){
 let celebrationScrollY = 0;
 let celebrationViewportCleanup = null;
 
+function getStableViewportHeight(){
+  const values = [
+    window.innerHeight,
+    document.documentElement.clientHeight,
+    window.visualViewport?.height
+  ].filter(Number.isFinite);
+
+  return Math.max(320, Math.round(Math.max(...values)));
+}
+
 function syncAppViewportHeight(){
-  const viewportHeight = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight;
-  document.documentElement.style.setProperty("--app-viewport-height", `${Math.round(viewportHeight)}px`);
+  const viewportHeight = getStableViewportHeight();
+  document.documentElement.style.setProperty("--app-viewport-height", `${viewportHeight}px`);
+}
+
+function lockCelebrationViewportHeight(){
+  const height = getStableViewportHeight();
+  document.documentElement.style.setProperty("--celebration-lock-height", `${height}px`);
+  document.documentElement.style.setProperty("--app-viewport-height", `${height}px`);
 }
 
 function startViewportSync(){
@@ -30,16 +46,16 @@ function startViewportSync(){
 
   if (celebrationViewportCleanup) return;
 
-  const target = window.visualViewport || window;
-  const handler = () => requestAnimationFrame(syncAppViewportHeight);
+  const handler = () => {
+    if (document.documentElement.classList.contains("celebration-lock")) return;
+    requestAnimationFrame(syncAppViewportHeight);
+  };
 
-  target.addEventListener("resize", handler, { passive:true });
-  target.addEventListener("scroll", handler, { passive:true });
+  window.addEventListener("resize", handler, { passive:true });
   window.addEventListener("orientationchange", handler, { passive:true });
 
   celebrationViewportCleanup = () => {
-    target.removeEventListener("resize", handler);
-    target.removeEventListener("scroll", handler);
+    window.removeEventListener("resize", handler);
     window.removeEventListener("orientationchange", handler);
     celebrationViewportCleanup = null;
   };
@@ -51,35 +67,20 @@ function stopViewportSync(){
 
 function lockPageForCelebration(){
   celebrationScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-  startViewportSync();
+  lockCelebrationViewportHeight();
 
+  document.documentElement.style.setProperty("--celebration-lock-top", `-${celebrationScrollY}px`);
   document.documentElement.classList.add("celebration-lock");
   document.body.classList.add("celebration-lock");
-
-  Object.assign(document.body.style, {
-    position:"fixed",
-    top:`-${celebrationScrollY}px`,
-    left:"0",
-    right:"0",
-    width:"100%",
-    overflow:"hidden"
-  });
 }
 
 function unlockPageForCelebration(){
   document.documentElement.classList.remove("celebration-lock");
   document.body.classList.remove("celebration-lock");
-
-  Object.assign(document.body.style, {
-    position:"",
-    top:"",
-    left:"",
-    right:"",
-    width:"",
-    overflow:""
-  });
+  document.documentElement.style.setProperty("--celebration-lock-top", "0px");
 
   window.scrollTo(0, celebrationScrollY);
+  syncAppViewportHeight();
   stopViewportSync();
 }
 
@@ -540,20 +541,29 @@ async function startCelebrationMusic(){
   return true;
 }
 
+function stopCelebrationTapSideEffects(event){
+  if (!event) return;
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+function stopCelebrationBubble(event){
+  if (!event) return;
+  event.stopPropagation();
+}
+
 function showCelebrationIfToday(events){
   const now = new Date();
   const todaysEvents = events
     .map(ev => ({ ev, base: new Date(ev.date) }))
     .filter(item => !Number.isNaN(item.base.getTime()) && isSameMonthDay(item.base, now));
 
-  if (!todaysEvents.length) return;
-
-  lockPageForCelebration();
+  if (!todaysEvents.length) return false;
 
   const primary = todaysEvents[0];
   const years = Math.max(0, now.getFullYear() - primary.base.getFullYear());
   const overlay = document.createElement("div");
-  overlay.className = "celebrationOverlay";
+  overlay.className = "celebrationOverlay active";
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
   overlay.setAttribute("aria-label", "Özel gün kutlaması");
@@ -615,15 +625,25 @@ function showCelebrationIfToday(events){
   function removeOverlay(){
     if (celebrationClosing) return;
     celebrationClosing = true;
-    overlay.classList.remove("active");
-    window.setTimeout(() => {
-      overlay.remove();
-      unlockPageForCelebration();
-    }, 260);
+    overlay.remove();
+    unlockPageForCelebration();
   }
 
+  const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.className = "celebrationDismiss";
+  dismiss.setAttribute("aria-label", "Kutlama ekranını kapat");
+  dismiss.textContent = "×";
+  dismiss.addEventListener("click", (e) => {
+    stopCelebrationTapSideEffects(e);
+    removeOverlay();
+  });
+
+  close.addEventListener("pointerdown", stopCelebrationBubble);
+  close.addEventListener("touchstart", stopCelebrationBubble, { passive:true });
   close.addEventListener("click", async (e) => {
-    e.stopPropagation();
+    stopCelebrationTapSideEffects(e);
+    lockCelebrationViewportHeight();
 
     overlay.classList.add("celebrating");
     createMusicNotes(overlay);
@@ -646,7 +666,10 @@ function showCelebrationIfToday(events){
     }
   });
 
-  overlay.addEventListener("click", removeOverlay);
+  overlay.addEventListener("click", (e) => {
+    // Kutlama sırasında yanlışlıkla arka ekranın açılıp kapanmasını önler.
+    stopCelebrationTapSideEffects(e);
+  });
   window.addEventListener("keydown", function onKey(e){
     if (e.key === "Escape"){
       window.removeEventListener("keydown", onKey);
@@ -655,12 +678,14 @@ function showCelebrationIfToday(events){
   });
 
   card.appendChild(close);
-  overlay.appendChild(card);
+  overlay.append(dismiss, card);
   document.body.appendChild(overlay);
 
-  requestAnimationFrame(() => {
-    overlay.classList.add("active");
-  });
+  // İlk açılışta önce overlay eklenir, sonra arka sayfa kilitlenir.
+  // Böylece mobil tarayıcıda arka ekran/beyaz alan bir anlığına görünmez.
+  lockPageForCelebration();
+
+  return true;
 }
 
 /* MUSIC (iOS: user gesture required) */
@@ -709,20 +734,31 @@ function setupMusic(){
   syncMusicUI();
 }
 
+function finishAppBoot(){
+  document.body.classList.remove("appBooting");
+}
+
 (async function main(){
   syncAppViewportHeight();
-  const events = await loadEvents();
 
-  // Akif’in altına Baba ve Anne doğum gününü koymak için:
-  // dates.json zaten o sırada verildi; yine de sıralamayı tarihe göre yapıyoruz.
-  events.sort((a,b)=> new Date(a.date) - new Date(b.date));
+  try{
+    const events = await loadEvents();
 
-  render(events);
-  tick(events);
-  setupMusic();
-  showCelebrationIfToday(events);
-  registerServiceWorker();
-  checkForAppUpdate();
+    // Akif’in altına Baba ve Anne doğum gününü koymak için:
+    // dates.json zaten o sırada verildi; yine de sıralamayı tarihe göre yapıyoruz.
+    events.sort((a,b)=> new Date(a.date) - new Date(b.date));
 
-  setInterval(() => tick(events), 1000);
+    render(events);
+    tick(events);
+    setupMusic();
+    showCelebrationIfToday(events);
+    finishAppBoot();
+    registerServiceWorker();
+    checkForAppUpdate();
+
+    setInterval(() => tick(events), 1000);
+  } catch (error){
+    console.log("Uygulama başlatılamadı:", error);
+    finishAppBoot();
+  }
 })();
