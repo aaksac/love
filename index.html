@@ -23,6 +23,7 @@
       --app-viewport-height:100dvh;
       --celebration-lock-height:100dvh;
       --celebration-lock-top:0px;
+      --celebration-bottom-cover:150px;
 
       --card:rgba(255,255,255,.055);
       --stroke:rgba(255,255,255,.10);
@@ -37,7 +38,9 @@
     html,body{
       width:100%;
       min-height:100%;
-      background:#05060A;
+      background:
+        radial-gradient(820px 620px at 50% 18%, rgba(255,45,135,.34), transparent 66%),
+        linear-gradient(180deg, #8b0041 0%, #35001f 55%, #13000d 100%);
       overflow-x:hidden;
     }
 
@@ -68,6 +71,26 @@
         linear-gradient(180deg, #8b0041 0%, #35001f 55%, #13000d 100%) !important;
     }
 
+    body.celebration-lock::before{
+      content:"";
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      bottom:calc(-1 * var(--celebration-bottom-cover));
+      height:calc(var(--celebration-lock-height) + var(--celebration-bottom-cover));
+      z-index:0;
+      pointer-events:none;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,.16)),
+        url("./assets/celebration-love-show.png") center center / cover no-repeat,
+        linear-gradient(180deg, #8b0041 0%, #35001f 55%, #13000d 100%) !important;
+      transform:translate3d(0,0,0);
+      backface-visibility:hidden;
+      -webkit-backface-visibility:hidden;
+    }
+
+
     body{
       min-height:100vh;
       min-height:var(--app-viewport-height);
@@ -89,10 +112,12 @@
     body.appBooting::before{
       content:"";
       position:fixed;
-      inset:0;
+      top:0;
+      left:0;
+      right:0;
+      bottom:calc(-1 * var(--celebration-bottom-cover));
       width:100%;
-      height:100vh;
-      height:100dvh;
+      height:calc(100dvh + var(--celebration-bottom-cover));
       z-index:9998;
       pointer-events:none;
       background:
@@ -283,10 +308,8 @@
       height:var(--celebration-lock-height);
       min-height:var(--celebration-lock-height);
       z-index:9999;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:calc(74px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+      display:block;
+      padding:0;
       overflow:hidden;
       overscroll-behavior:none;
       -webkit-overflow-scrolling:auto;
@@ -384,13 +407,16 @@
     }
 
     .celebrationCard{
-      position:relative;
+      position:absolute;
+      top:calc(74px + env(safe-area-inset-top));
+      left:max(14px, env(safe-area-inset-left));
+      right:max(14px, env(safe-area-inset-right));
       z-index:4;
-      flex:0 1 auto;
-      width:100%;
+      width:auto;
       max-width:520px;
       max-height:calc(var(--celebration-lock-height) - 112px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-      margin:0 auto;
+      margin-left:auto;
+      margin-right:auto;
       padding:14px 14px 12px;
       overflow:auto;
       overscroll-behavior:contain;
@@ -586,13 +612,34 @@
         radial-gradient(circle at 50% 55%, rgba(255,188,82,.34), transparent 58%);
     }
 
-    @media (max-height: 680px){
+    @supports (-webkit-touch-callout: none){
       .celebrationOverlay{
-        padding-top:calc(52px + env(safe-area-inset-top));
-        padding-bottom:calc(12px + env(safe-area-inset-bottom));
+        height:var(--celebration-lock-height);
+        min-height:-webkit-fill-available;
+      }
+
+      .celebrationArtwork{
+        height:100%;
+        min-height:-webkit-fill-available;
+      }
+
+      body.celebration-lock::before,
+      body.appBooting::before{
+        bottom:-180px;
+        height:calc(var(--celebration-lock-height) + 180px);
       }
 
       .celebrationCard{
+        left:14px;
+        right:14px;
+        margin-left:auto;
+        margin-right:auto;
+      }
+    }
+
+    @media (max-height: 680px){
+      .celebrationCard{
+        top:calc(52px + env(safe-area-inset-top));
         max-height:calc(var(--celebration-lock-height) - 76px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
         padding:11px 12px 10px;
         border-radius:22px;
