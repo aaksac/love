@@ -1,3 +1,6 @@
+const APP_VERSION = "1.0.2";
+const VERSION_FILE = "./version.json";
+
 const pad2 = n => String(n).padStart(2, "0");
 
 function fmtDate(d){
@@ -53,6 +56,196 @@ async function loadEvents(){
   if (!res.ok) throw new Error("dates.json okunamadı");
   const data = await res.json();
   return data.events || [];
+}
+
+function normalizeVersion(value){
+  return String(value || "").trim();
+}
+
+function isNewerVersion(remoteVersion, currentVersion){
+  remoteVersion = normalizeVersion(remoteVersion);
+  currentVersion = normalizeVersion(currentVersion);
+
+  if (!remoteVersion || remoteVersion === currentVersion) return false;
+
+  const remoteParts = remoteVersion.split(/[.-]/).map(part => Number.parseInt(part, 10));
+  const currentParts = currentVersion.split(/[.-]/).map(part => Number.parseInt(part, 10));
+  const comparable = remoteParts.every(Number.isFinite) && currentParts.every(Number.isFinite);
+
+  if (!comparable) return remoteVersion !== currentVersion;
+
+  const max = Math.max(remoteParts.length, currentParts.length);
+  for (let i = 0; i < max; i++){
+    const r = remoteParts[i] || 0;
+    const c = currentParts[i] || 0;
+    if (r > c) return true;
+    if (r < c) return false;
+  }
+
+  return false;
+}
+
+async function loadRemoteVersion(){
+  const url = `${VERSION_FILE}?t=${Date.now()}`;
+  const res = await fetch(url, {
+    cache:"no-store",
+    headers:{ "Cache-Control":"no-cache" }
+  });
+
+  if (!res.ok) throw new Error("version.json okunamadı");
+  return res.json();
+}
+
+async function clearAppCaches(){
+  if (!("caches" in window)) return;
+  const keys = await caches.keys();
+  await Promise.all(keys.map(key => caches.delete(key)));
+}
+
+async function activateLatestServiceWorker(){
+  if (!("serviceWorker" in navigator)) return;
+
+  const registration = await navigator.serviceWorker.getRegistration("./");
+  if (!registration) return;
+
+  await registration.update().catch(()=>{});
+
+  if (registration.waiting){
+    registration.waiting.postMessage({ type:"SKIP_WAITING" });
+  }
+}
+
+async function applyUpdate(remote){
+  const version = normalizeVersion(remote.version);
+  const key = `biz-love-auto-updated-${version}`;
+
+  if (sessionStorage.getItem(key) === "1") return;
+  sessionStorage.setItem(key, "1");
+
+  await activateLatestServiceWorker();
+  await clearAppCaches();
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("v", version || String(Date.now()));
+  window.location.replace(url.toString());
+}
+
+function showUpdateNotice(remote){
+  if (document.querySelector(".updateOverlay")) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "updateOverlay";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "Uygulama güncellemesi");
+
+  const card = document.createElement("div");
+  card.className = "updateCard";
+  card.addEventListener("click", e => e.stopPropagation());
+
+  const icon = document.createElement("div");
+  icon.className = "updateIcon";
+  icon.textContent = "↻";
+  icon.setAttribute("aria-hidden", "true");
+
+  const eyebrow = document.createElement("div");
+  eyebrow.className = "updateEyebrow";
+  eyebrow.textContent = "Yeni sürüm hazır";
+
+  const title = document.createElement("div");
+  title.className = "updateTitle";
+  title.textContent = remote.title || "Uygulama güncellendi";
+
+  const text = document.createElement("div");
+  text.className = "updateText";
+  text.textContent = remote.message || "En yeni dosyaların yüklenmesi için uygulama şimdi yenilenecek.";
+
+  const version = document.createElement("div");
+  version.className = "updateVersion";
+  version.textContent = `Mevcut: v${APP_VERSION} · Yeni: v${remote.version}`;
+
+  const actions = document.createElement("div");
+  actions.className = "updateActions";
+
+  const later = document.createElement("button");
+  later.type = "button";
+  later.className = "updateLater";
+  later.textContent = "Sonra";
+
+  const update = document.createElement("button");
+  update.type = "button";
+  update.className = "updateNow";
+  update.textContent = "Şimdi Güncelle";
+
+  function close(){
+    overlay.classList.remove("active");
+    window.setTimeout(() => overlay.remove(), 220);
+  }
+
+  later.addEventListener("click", close);
+  overlay.addEventListener("click", close);
+  update.addEventListener("click", async () => {
+    update.disabled = true;
+    update.textContent = "Güncelleniyor...";
+    await applyUpdate(remote).catch(() => {
+      update.disabled = false;
+      update.textContent = "Tekrar Dene";
+    });
+  });
+
+  actions.append(later, update);
+  card.append(icon, eyebrow, title, text, version, actions);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  requestAnimationFrame(() => overlay.classList.add("active"));
+}
+
+async function checkForAppUpdate(){
+  try{
+    const remote = await loadRemoteVersion();
+    if (!isNewerVersion(remote.version, APP_VERSION)) return;
+
+    if (remote.updateMode === "auto" || remote.forceUpdate === true){
+      await applyUpdate(remote);
+      return;
+    }
+
+    showUpdateNotice(remote);
+  } catch (error){
+    console.log("Sürüm kontrolü yapılamadı:", error);
+  }
+}
+
+async function registerServiceWorker(){
+  if (!("serviceWorker" in navigator)) return;
+
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+
+  window.addEventListener("load", async () => {
+    try{
+      const registration = await navigator.serviceWorker.register("./sw.js");
+      registration.update().catch(()=>{});
+
+      registration.addEventListener("updatefound", () => {
+        const worker = registration.installing;
+        if (!worker) return;
+
+        worker.addEventListener("statechange", () => {
+          if (worker.state === "installed" && navigator.serviceWorker.controller){
+            worker.postMessage({ type:"SKIP_WAITING" });
+          }
+        });
+      });
+    } catch (error){
+      console.log("Service Worker kaydı yapılamadı:", error);
+    }
+  });
 }
 
 function render(events){
@@ -325,12 +518,8 @@ function setupMusic(){
   tick(events);
   setupMusic();
   showCelebrationIfToday(events);
+  registerServiceWorker();
+  checkForAppUpdate();
 
   setInterval(() => tick(events), 1000);
-
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(()=>{});
-    });
-  }
 })();
