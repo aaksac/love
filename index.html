@@ -496,10 +496,29 @@
 
     .celebrationOverlay.celebrating{
       background:
-        radial-gradient(560px 420px at 50% 14%, rgba(255,84,112,.38), transparent 66%),
-        radial-gradient(440px 360px at 22% 72%, rgba(255,204,102,.22), transparent 72%),
-        radial-gradient(440px 360px at 84% 76%, rgba(255,255,255,.13), transparent 72%),
-        rgba(5,6,10,.76);
+        radial-gradient(620px 480px at 50% 12%, rgba(255,45,85,.48), transparent 66%),
+        radial-gradient(520px 420px at 20% 70%, rgba(255,204,102,.32), transparent 72%),
+        radial-gradient(520px 420px at 84% 74%, rgba(255,255,255,.18), transparent 72%),
+        radial-gradient(900px 700px at 50% 110%, rgba(255,45,85,.22), transparent 70%),
+        rgba(5,6,10,.78);
+    }
+
+    .celebrationOverlay.celebrationMinuteShow{
+      animation:celebrationSceneGlow 5.6s ease-in-out infinite;
+    }
+
+    .celebrationOverlay.celebrationMinuteShow .celebrationCard{
+      box-shadow:
+        0 38px 110px rgba(0,0,0,.66),
+        0 0 54px rgba(255,45,85,.20),
+        0 0 74px rgba(255,199,92,.12),
+        inset 0 1px 0 rgba(255,255,255,.24);
+    }
+
+    .celebrationOverlay.celebrationMinuteShow .celebrationIcon{
+      animation:
+        celebrationFloat 2.2s ease-in-out infinite,
+        celebrationIconGlow 1.85s ease-in-out infinite;
     }
 
     .celebrationFireworkLayer{
@@ -525,17 +544,17 @@
       position:absolute;
       left:50%;
       top:50%;
-      width:16px;
-      height:16px;
+      width:22px;
+      height:22px;
       border-radius:999px;
       background:radial-gradient(circle, #fff 0 18%, #FFE39B 28%, rgba(255,45,85,.72) 62%, transparent 74%);
       box-shadow:
-        0 0 18px rgba(255,255,255,.95),
-        0 0 38px rgba(255,45,85,.75),
-        0 0 58px rgba(255,195,84,.58);
+        0 0 22px rgba(255,255,255,.98),
+        0 0 52px rgba(255,45,85,.86),
+        0 0 84px rgba(255,195,84,.70);
       opacity:0;
       transform:translate(-50%, -50%) scale(.25);
-      animation:heartFireworkCore 1.2s ease-out forwards;
+      animation:heartFireworkCore 1.55s ease-out forwards;
     }
 
     .heartSpark{
@@ -552,8 +571,41 @@
         0 0 32px rgba(255,45,85,.42);
       opacity:0;
       transform:translate(-50%, -50%) scale(.18);
-      animation:heartSparkFly 1.58s cubic-bezier(.12,.82,.22,1) forwards;
+      animation:heartSparkFly 2.35s cubic-bezier(.12,.82,.22,1) forwards;
       animation-delay:var(--delay);
+    }
+
+    .heartSparkBig{
+      width:calc(var(--spark-size) * 1.35);
+      height:calc(var(--spark-size) * 1.35);
+      box-shadow:
+        0 0 14px rgba(255,255,255,.96),
+        0 0 28px var(--spark),
+        0 0 48px rgba(255,45,85,.50);
+    }
+
+    .celebrationRingSpark{
+      opacity:.95;
+      filter:blur(.15px);
+    }
+
+    .celebrationConfetti{
+      position:absolute;
+      left:var(--cx);
+      top:-34px;
+      z-index:2;
+      font-size:var(--csize);
+      color:#FFE7A6;
+      opacity:0;
+      pointer-events:none;
+      user-select:none;
+      text-shadow:
+        0 0 8px rgba(255,255,255,.86),
+        0 0 18px rgba(255,202,98,.78),
+        0 0 34px rgba(255,45,85,.40);
+      transform:translate3d(0,-30px,0) rotate(0deg) scale(.78);
+      animation:celebrationConfettiFall var(--cdur) linear forwards;
+      animation-delay:var(--cdelay);
     }
 
     .celebrationMusicNote{
@@ -571,7 +623,7 @@
       pointer-events:none;
       opacity:0;
       transform:translate3d(0,0,0) scale(.72) rotate(-8deg);
-      animation:musicNoteFloat 2.2s ease-out forwards;
+      animation:musicNoteFloat 3s ease-out forwards;
       animation-delay:var(--note-delay);
     }
 
@@ -586,23 +638,49 @@
 
     @keyframes heartFireworkCore{
       0%{ opacity:0; transform:translate(-50%, -50%) scale(.18); }
-      12%{ opacity:1; transform:translate(-50%, -50%) scale(1.2); }
-      58%{ opacity:.86; transform:translate(-50%, -50%) scale(.82); }
-      100%{ opacity:0; transform:translate(-50%, -50%) scale(.28); }
+      10%{ opacity:1; transform:translate(-50%, -50%) scale(1.38); }
+      46%{ opacity:.92; transform:translate(-50%, -50%) scale(.92); }
+      100%{ opacity:0; transform:translate(-50%, -50%) scale(.36); }
     }
 
     @keyframes heartSparkFly{
-      0%{ opacity:0; transform:translate(-50%, -50%) scale(.18); }
-      12%{ opacity:1; }
-      70%{ opacity:1; }
-      100%{ opacity:0; transform:translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(.82); }
+      0%{ opacity:0; transform:translate(-50%, -50%) scale(.12); }
+      10%{ opacity:1; }
+      68%{ opacity:1; }
+      100%{ opacity:0; transform:translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1.04); }
+    }
+
+    @keyframes celebrationConfettiFall{
+      0%{ opacity:0; transform:translate3d(0,-36px,0) rotate(0deg) scale(.72); }
+      9%{ opacity:1; }
+      86%{ opacity:.94; }
+      100%{ opacity:0; transform:translate3d(var(--cdx), calc(var(--celebration-lock-height) + 88px), 0) rotate(var(--crot)) scale(1.05); }
     }
 
     @keyframes musicNoteFloat{
-      0%{ opacity:0; transform:translate3d(0,0,0) scale(.72) rotate(-8deg); }
-      16%{ opacity:1; }
-      76%{ opacity:.92; }
-      100%{ opacity:0; transform:translate3d(var(--ndx), var(--ndy), 0) scale(1.08) rotate(10deg); }
+      0%{ opacity:0; transform:translate3d(0,0,0) scale(.68) rotate(-10deg); }
+      14%{ opacity:1; }
+      78%{ opacity:.96; }
+      100%{ opacity:0; transform:translate3d(var(--ndx), var(--ndy), 0) scale(1.18) rotate(12deg); }
+    }
+
+    @keyframes celebrationSceneGlow{
+      0%,100%{ filter:saturate(1.06) brightness(1); }
+      50%{ filter:saturate(1.28) brightness(1.08); }
+    }
+
+    @keyframes celebrationIconGlow{
+      0%,100%{
+        box-shadow:
+          0 20px 50px rgba(255,45,85,.24),
+          inset 0 1px 0 rgba(255,255,255,.34);
+      }
+      50%{
+        box-shadow:
+          0 26px 62px rgba(255,45,85,.42),
+          0 0 42px rgba(255,210,120,.24),
+          inset 0 1px 0 rgba(255,255,255,.42);
+      }
     }
 
     @keyframes celebrationButtonGlow{
@@ -627,7 +705,40 @@
       .celebrationParticle,
       .heartFireworkCore,
       .heartSpark,
-      .celebrationMusicNote{
+      .heartSparkBig{
+      width:calc(var(--spark-size) * 1.35);
+      height:calc(var(--spark-size) * 1.35);
+      box-shadow:
+        0 0 14px rgba(255,255,255,.96),
+        0 0 28px var(--spark),
+        0 0 48px rgba(255,45,85,.50);
+    }
+
+    .celebrationRingSpark{
+      opacity:.95;
+      filter:blur(.15px);
+    }
+
+    .celebrationConfetti{
+      position:absolute;
+      left:var(--cx);
+      top:-34px;
+      z-index:2;
+      font-size:var(--csize);
+      color:#FFE7A6;
+      opacity:0;
+      pointer-events:none;
+      user-select:none;
+      text-shadow:
+        0 0 8px rgba(255,255,255,.86),
+        0 0 18px rgba(255,202,98,.78),
+        0 0 34px rgba(255,45,85,.40);
+      transform:translate3d(0,-30px,0) rotate(0deg) scale(.78);
+      animation:celebrationConfettiFall var(--cdur) linear forwards;
+      animation-delay:var(--cdelay);
+    }
+
+    .celebrationMusicNote{
         animation:none !important;
         transition:none !important;
       }
