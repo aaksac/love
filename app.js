@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.13";
+const APP_VERSION = "1.0.14";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -22,13 +22,13 @@ let celebrationViewportCleanup = null;
 const CELEBRATION_SHOW_DURATION_MS = 60000;
 
 function getStableViewportHeight(){
-  const values = [
-    window.innerHeight,
-    document.documentElement.clientHeight,
-    window.visualViewport?.height
-  ].filter(Number.isFinite);
+  const visualHeight = window.visualViewport?.height;
+  if (Number.isFinite(visualHeight) && visualHeight > 0){
+    return Math.max(320, Math.round(visualHeight));
+  }
 
-  return Math.max(320, Math.round(Math.max(...values)));
+  const fallback = window.innerHeight || document.documentElement.clientHeight || 0;
+  return Math.max(320, Math.round(fallback));
 }
 
 function syncAppViewportHeight(){
@@ -38,10 +38,8 @@ function syncAppViewportHeight(){
 
 function lockCelebrationViewportHeight(){
   const height = getStableViewportHeight();
-  const bleed = Math.max(96, Math.round(height * 0.10));
   document.documentElement.style.setProperty("--celebration-lock-height", `${height}px`);
   document.documentElement.style.setProperty("--app-viewport-height", `${height}px`);
-  document.documentElement.style.setProperty("--celebration-viewport-bleed", `${bleed}px`);
 }
 
 function startViewportSync(){
@@ -711,6 +709,9 @@ function showCelebrationIfToday(events){
 
   const primary = todaysEvents[0];
   const years = Math.max(0, now.getFullYear() - primary.base.getFullYear());
+
+  lockPageForCelebration();
+
   const overlay = document.createElement("div");
   overlay.className = "celebrationOverlay active";
   overlay.setAttribute("role", "dialog");
@@ -829,8 +830,6 @@ function showCelebrationIfToday(events){
   card.appendChild(close);
   overlay.append(artwork, lightLayer, dismiss, card);
   document.body.appendChild(overlay);
-
-  lockPageForCelebration();
 
   return true;
 }
