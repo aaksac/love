@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.7";
+const APP_VERSION = "1.0.8";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -467,7 +467,7 @@ function createHeartFirework(layer, xPercent, yPercent, scale = 1, intensity = 1
   if (!layer || !layer.isConnected) return;
 
   const firework = document.createElement("div");
-  firework.className = "heartFirework";
+  firework.className = "heartFirework heartFireworkMega";
   firework.style.setProperty("--fx", `${xPercent}%`);
   firework.style.setProperty("--fy", `${yPercent}%`);
   firework.style.setProperty("--fw-scale", String(scale));
@@ -476,9 +476,12 @@ function createHeartFirework(layer, xPercent, yPercent, scale = 1, intensity = 1
   core.className = "heartFireworkCore";
   firework.appendChild(core);
 
-  const colors = ["#FFFDF0", "#FFE39B", "#FFD166", "#FF7AA2", "#FF2D55", "#FFB3C7"];
-  const total = Math.round(72 * intensity);
-  const spread = 6.4 * scale;
+  const colors = [
+    "#FFFFFF", "#FFF3B0", "#FFD166", "#FF9F1C",
+    "#FF2D55", "#FF4FA3", "#FF7AA2", "#B517FF"
+  ];
+  const total = Math.round(104 * intensity);
+  const spread = 8.2 * scale;
 
   for (let i = 0; i < total; i++){
     const t = (Math.PI * 2 * i) / total;
@@ -488,48 +491,118 @@ function createHeartFirework(layer, xPercent, yPercent, scale = 1, intensity = 1
     const hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
 
     const spark = document.createElement("span");
-    spark.className = i % 4 === 0 ? "heartSpark heartSparkBig" : "heartSpark";
+    spark.className = i % 5 === 0 ? "heartSpark heartSparkBig" : "heartSpark";
     spark.style.setProperty("--tx", `${hx * spread}px`);
     spark.style.setProperty("--ty", `${hy * spread}px`);
-    spark.style.setProperty("--delay", `${(i % 9) * 0.014}s`);
+    spark.style.setProperty("--delay", `${(i % 12) * 0.010}s`);
     spark.style.setProperty("--spark", colors[i % colors.length]);
-    spark.style.setProperty("--spark-size", `${Math.max(4.5, 8.5 * scale)}px`);
+    spark.style.setProperty("--spark-size", `${Math.max(5.2, 10.4 * scale)}px`);
     firework.appendChild(spark);
   }
 
-  // Kalbin çevresine ikinci bir altın halka eklenir; ekranı daha canlı gösterir.
-  const ringTotal = Math.round(26 * intensity);
+  // Kalp dışına dev altın/pembe şok halkası ve saçılan yıldızlar.
+  const ringTotal = Math.round(46 * intensity);
   for (let i = 0; i < ringTotal; i++){
     const angle = (Math.PI * 2 * i) / ringTotal;
-    const radius = randomBetween(70, 122) * scale;
+    const radius = randomBetween(112, 210) * scale;
 
     const spark = document.createElement("span");
-    spark.className = "heartSpark celebrationRingSpark";
+    spark.className = i % 3 === 0 ? "heartSpark celebrationRingSpark celebrationRingSparkBig" : "heartSpark celebrationRingSpark";
     spark.style.setProperty("--tx", `${Math.cos(angle) * radius}px`);
     spark.style.setProperty("--ty", `${Math.sin(angle) * radius}px`);
-    spark.style.setProperty("--delay", `${(i % 6) * 0.02}s`);
-    spark.style.setProperty("--spark", colors[(i + 2) % colors.length]);
-    spark.style.setProperty("--spark-size", `${Math.max(3.5, 6.2 * scale)}px`);
+    spark.style.setProperty("--delay", `${(i % 8) * 0.014}s`);
+    spark.style.setProperty("--spark", colors[(i + 3) % colors.length]);
+    spark.style.setProperty("--spark-size", `${Math.max(4.2, 8.8 * scale)}px`);
     firework.appendChild(spark);
   }
 
+  const shock = document.createElement("span");
+  shock.className = "celebrationShockwave";
+  firework.appendChild(shock);
+
   layer.appendChild(firework);
-  window.setTimeout(() => firework.remove(), 2800);
+  window.setTimeout(() => firework.remove(), 3600);
+}
+
+
+function createCelebrationRocket(overlay, targetX = randomBetween(14, 86), targetY = randomBetween(10, 58), scale = randomBetween(.75, 1.22)){
+  const layer = getCelebrationLayer(overlay);
+  if (!layer) return;
+
+  const rect = layer.getBoundingClientRect();
+  const startX = randomBetween(8, 92);
+  const dx = (rect.width * (targetX - startX)) / 100;
+  const dy = (rect.height * targetY / 100) - rect.height - 28;
+
+  const rocket = document.createElement("span");
+  rocket.className = "celebrationRocket";
+  rocket.style.setProperty("--rsx", `${startX}%`);
+  rocket.style.setProperty("--rdx", `${dx}px`);
+  rocket.style.setProperty("--rdy", `${dy}px`);
+  rocket.style.setProperty("--rocket-scale", String(scale));
+  layer.appendChild(rocket);
+
+  window.setTimeout(() => {
+    rocket.remove();
+    createHeartFirework(layer, targetX, targetY, scale, randomBetween(.92, 1.28));
+    createScreenFlash(overlay);
+  }, 780);
+
+  window.setTimeout(() => rocket.remove(), 1200);
+}
+
+function createScreenFlash(overlay){
+  if (!overlay || !overlay.isConnected) return;
+  overlay.classList.remove("celebrationFlash");
+  // Reflow: aynı class art arda geldiğinde animasyon tekrar başlasın.
+  void overlay.offsetWidth;
+  overlay.classList.add("celebrationFlash");
+  window.setTimeout(() => overlay.classList.remove("celebrationFlash"), 260);
+}
+
+function createCelebrationLightTrails(overlay, amount = 5){
+  const layer = getCelebrationLayer(overlay);
+  if (!layer) return;
+
+  for (let i = 0; i < amount; i++){
+    const trail = document.createElement("span");
+    trail.className = "celebrationLightTrail";
+    trail.style.setProperty("--trail-top", `${randomBetween(18, 78)}%`);
+    trail.style.setProperty("--trail-rot", `${randomBetween(-28, 28)}deg`);
+    trail.style.setProperty("--trail-delay", `${randomBetween(0, .35)}s`);
+    layer.appendChild(trail);
+    window.setTimeout(() => trail.remove(), 3000);
+  }
+}
+
+function createCelebrationVortex(overlay){
+  const layer = getCelebrationLayer(overlay);
+  if (!layer) return;
+
+  for (let i = 0; i < 3; i++){
+    const ring = document.createElement("span");
+    ring.className = "celebrationVortexRing";
+    ring.style.setProperty("--ring-size", `${randomBetween(340, 720)}px`);
+    ring.style.setProperty("--ring-delay", `${i * .18}s`);
+    ring.style.setProperty("--ring-rot", `${i % 2 ? -360 : 360}deg`);
+    layer.appendChild(ring);
+    window.setTimeout(() => ring.remove(), 5200);
+  }
 }
 
 function createCelebrationConfetti(overlay, amount = 18){
   const layer = getCelebrationLayer(overlay);
   if (!layer) return;
 
-  const pieces = ["♥", "♡", "❥", "✦", "✨", "✧", "❣"];
+  const pieces = ["♥", "♡", "❥", "💖", "💘", "✦", "✨", "✧", "❣", "◆"];
   for (let i = 0; i < amount; i++){
     const confetti = document.createElement("span");
     confetti.className = "celebrationConfetti";
     confetti.textContent = pieces[i % pieces.length];
     confetti.style.setProperty("--cx", `${randomBetween(3, 97)}%`);
-    confetti.style.setProperty("--csize", `${randomBetween(14, 28)}px`);
+    confetti.style.setProperty("--csize", `${randomBetween(16, 34)}px`);
     confetti.style.setProperty("--cdx", `${randomBetween(-58, 58)}px`);
-    confetti.style.setProperty("--cdur", `${randomBetween(3.8, 6.8)}s`);
+    confetti.style.setProperty("--cdur", `${randomBetween(3.2, 6.2)}s`);
     confetti.style.setProperty("--crot", `${randomBetween(-220, 220)}deg`);
     confetti.style.setProperty("--cdelay", `${randomBetween(0, .7)}s`);
     layer.appendChild(confetti);
@@ -540,7 +613,7 @@ function createCelebrationConfetti(overlay, amount = 18){
 
 function createMusicNotes(parent, options = {}){
   const notes = ["♪", "♫", "♬", "♩", "𝄞"];
-  const count = options.count || 7;
+  const count = options.count || 10;
 
   for (let i = 0; i < count; i++){
     const note = document.createElement("span");
@@ -549,10 +622,10 @@ function createMusicNotes(parent, options = {}){
     note.style.setProperty("--nx", `${randomBetween(9, 91)}%`);
     note.style.setProperty("--ny", `${randomBetween(55, 86)}%`);
     note.style.setProperty("--ndx", `${randomBetween(-58, 58)}px`);
-    note.style.setProperty("--ndy", `${randomBetween(-150, -90)}px`);
+    note.style.setProperty("--ndy", `${randomBetween(-240, -120)}px`);
     note.style.setProperty("--note-delay", `${Math.round(randomBetween(0, 620))}ms`);
     parent.appendChild(note);
-    window.setTimeout(() => note.remove(), 3400);
+    window.setTimeout(() => note.remove(), 4200);
   }
 }
 
@@ -561,31 +634,40 @@ function launchHeartFireworkShow(overlay, mode = "burst"){
   if (!layer) return;
 
   const grand = mode === "grand" || mode === "finale";
+  const finale = mode === "finale";
   const bursts = grand ? [
-    [50, 14, 1.46, 0, 1.15],
-    [20, 24, 1.02, 180, 1],
-    [80, 24, 1.02, 340, 1],
-    [36, 38, .86, 520, .92],
-    [64, 38, .86, 680, .92],
-    [50, 47, .76, 880, .86],
-    [15, 62, .72, 1080, .82],
-    [85, 62, .72, 1260, .82],
-    [29, 72, .58, 1480, .76],
-    [71, 72, .58, 1660, .76]
+    [50, 11, 1.82, 0, 1.35],
+    [18, 18, 1.22, 120, 1.18],
+    [82, 18, 1.22, 240, 1.18],
+    [32, 32, 1.08, 360, 1.08],
+    [68, 32, 1.08, 480, 1.08],
+    [50, 42, .98, 610, 1.02],
+    [14, 56, .84, 760, .94],
+    [86, 56, .84, 900, .94],
+    [28, 70, .72, 1040, .86],
+    [72, 70, .72, 1180, .86],
+    [50, 75, .66, 1320, .82]
   ] : [
-    [50, 17, 1.24, 0, 1],
-    [22, 30, .92, 220, .9],
-    [78, 31, .92, 420, .9],
-    [50, 42, .72, 640, .84],
-    [14, 63, .62, 840, .76],
-    [86, 64, .62, 1040, .76]
+    [50, 15, 1.42, 0, 1.12],
+    [22, 28, 1.04, 160, 1.02],
+    [78, 29, 1.04, 310, 1.02],
+    [50, 43, .88, 460, .96],
+    [15, 62, .72, 620, .86],
+    [85, 62, .72, 780, .86]
   ];
 
   bursts.forEach(([x, y, scale, delay, intensity]) => {
     window.setTimeout(() => createHeartFirework(layer, x, y, scale, intensity), delay);
   });
 
-  createCelebrationConfetti(overlay, grand ? 28 : 16);
+  if (finale){
+    createCelebrationVortex(overlay);
+    createCelebrationLightTrails(overlay, 8);
+  }
+
+  createScreenFlash(overlay);
+  createCelebrationConfetti(overlay, grand ? 54 : 30);
+  createMusicNotes(overlay, { count: grand ? 16 : 9 });
 }
 
 function getCelebrationState(overlay){
@@ -623,7 +705,7 @@ function finishCelebrationShow(overlay, actionButton){
   state.running = false;
   state.endsAt = 0;
 
-  overlay.classList.remove("celebrationMinuteShow");
+  overlay.classList.remove("celebrationMinuteShow", "celebrationDizzyShow");
   actionButton.textContent = "Tekrar Kutla ❤️";
 
   launchHeartFireworkShow(overlay, "finale");
@@ -634,16 +716,17 @@ function startMinuteCelebrationShow(overlay, actionButton){
   const state = getCelebrationState(overlay);
 
   if (state.running){
-    // Kullanıcı tekrar dokunursa süreyi sıfırlamadan ekstra canlılık ver.
+    // Kullanıcı tekrar dokunursa süreyi sıfırlamadan ekstra büyük patlama verir.
     launchHeartFireworkShow(overlay, "grand");
-    createMusicNotes(overlay, { count:10 });
-    createCelebrationConfetti(overlay, 24);
+    createCelebrationVortex(overlay);
+    createCelebrationLightTrails(overlay, 7);
+    createCelebrationConfetti(overlay, 42);
     return;
   }
 
   state.running = true;
   state.endsAt = Date.now() + CELEBRATION_SHOW_DURATION_MS;
-  overlay.classList.add("celebrating", "celebrationMinuteShow");
+  overlay.classList.add("celebrating", "celebrationMinuteShow", "celebrationDizzyShow");
   actionButton.classList.add("celebrating");
 
   const updateCountdown = () => {
@@ -652,30 +735,57 @@ function startMinuteCelebrationShow(overlay, actionButton){
   };
 
   updateCountdown();
-  launchHeartFireworkShow(overlay, "grand");
-  createMusicNotes(overlay, { count:12 });
-  createCelebrationConfetti(overlay, 34);
 
+  // Başlangıç: bir anda sahneyi dolduran büyük giriş.
+  launchHeartFireworkShow(overlay, "grand");
+  createCelebrationVortex(overlay);
+  createCelebrationLightTrails(overlay, 9);
+  createCelebrationConfetti(overlay, 68);
+
+  // Roketler aşağıdan çıkıp hedefte kalpli havai fişeğe dönüşür.
+  state.intervals.push(window.setInterval(() => {
+    createCelebrationRocket(
+      overlay,
+      randomBetween(10, 90),
+      randomBetween(8, 62),
+      randomBetween(.78, 1.48)
+    );
+  }, 430));
+
+  // Aralarda doğrudan dev kalp patlamaları: ekran boş kalmasın.
   state.intervals.push(window.setInterval(() => {
     const layer = getCelebrationLayer(overlay);
     if (!layer) return;
 
     createHeartFirework(
       layer,
-      randomBetween(12, 88),
-      randomBetween(12, 68),
-      randomBetween(.62, 1.42),
-      randomBetween(.78, 1.08)
+      randomBetween(10, 90),
+      randomBetween(10, 72),
+      randomBetween(.82, 1.68),
+      randomBetween(.95, 1.38)
     );
-  }, 520));
+  }, 760));
 
+  // Baş döndürücü ışık çizgileri ve halka dönüşleri.
   state.intervals.push(window.setInterval(() => {
-    createCelebrationConfetti(overlay, 16);
-  }, 1150));
+    createCelebrationLightTrails(overlay, 5);
+    if (Math.random() > .38) createCelebrationVortex(overlay);
+  }, 2200));
 
+  // Sürekli kalp/confetti yağmuru.
   state.intervals.push(window.setInterval(() => {
-    createMusicNotes(overlay, { count:6 });
-  }, 1850));
+    createCelebrationConfetti(overlay, 26);
+  }, 620));
+
+  // Müzik notaları daha sık ve daha büyük görünür.
+  state.intervals.push(window.setInterval(() => {
+    createMusicNotes(overlay, { count:10 });
+  }, 980));
+
+  // Her 10 saniyede büyük final dalgası.
+  state.intervals.push(window.setInterval(() => {
+    launchHeartFireworkShow(overlay, "grand");
+  }, 10000));
 
   state.intervals.push(window.setInterval(() => {
     updateCountdown();
@@ -786,6 +896,7 @@ function showCelebrationIfToday(events){
   function removeOverlay(){
     if (celebrationClosing) return;
     celebrationClosing = true;
+    // Çarpıya basınca sahne kapanır; müzik özellikle durdurulmaz.
     clearCelebrationShow(overlay);
     overlay.remove();
     unlockPageForCelebration();
