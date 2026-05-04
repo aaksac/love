@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.8";
+const APP_VERSION = "1.0.10";
 const VERSION_FILE = "./version.json";
 
 const pad2 = n => String(n).padStart(2, "0");
@@ -38,8 +38,10 @@ function syncAppViewportHeight(){
 
 function lockCelebrationViewportHeight(){
   const height = getStableViewportHeight();
+  const bleed = Math.max(96, Math.round(height * 0.10));
   document.documentElement.style.setProperty("--celebration-lock-height", `${height}px`);
   document.documentElement.style.setProperty("--app-viewport-height", `${height}px`);
+  document.documentElement.style.setProperty("--celebration-viewport-bleed", `${bleed}px`);
 }
 
 function startViewportSync(){
@@ -720,6 +722,7 @@ function showCelebrationIfToday(events){
   artwork.src = "./assets/celebration-love-show.png";
   artwork.alt = "";
   artwork.decoding = "async";
+  artwork.fetchPriority = "high";
   artwork.loading = "eager";
   artwork.draggable = false;
   artwork.setAttribute("aria-hidden", "true");
@@ -879,7 +882,12 @@ function setupMusic(){
 }
 
 function finishAppBoot(){
-  document.body.classList.remove("appBooting");
+  if (!document.body.classList.contains("appBooting")) return;
+
+  document.body.classList.add("bootCurtainOut");
+  window.setTimeout(() => {
+    document.body.classList.remove("appBooting", "bootCurtainOut");
+  }, 170);
 }
 
 (async function main(){
