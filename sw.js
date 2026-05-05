@@ -1,4 +1,4 @@
-const CACHE_NAME = "biz-love-v3";
+const CACHE_NAME = "biz-love-v55";
 const CORE = [
   "./",
   "./index.html",
